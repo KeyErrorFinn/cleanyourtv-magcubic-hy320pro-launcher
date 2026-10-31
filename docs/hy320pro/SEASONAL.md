@@ -16,7 +16,7 @@ permission.
 | **Off** | No seasonal skin. |
 | **Always &lt;holiday&gt;** | That holiday's skin stays until you change it, whatever the date. |
 
-**Advanced edition:** Settings, Other settings, **Seasonal themes**. It defaults to **Automatic**. Home updates when
+**Advanced edition:** Settings, Other settings, Appearance, **Seasonal themes**. It defaults to **Automatic**. Home updates when
 you leave Settings.
 
 **Basic edition:** it is an optional extra and **off by default**. Settings opens the manufacturer pages, so there is

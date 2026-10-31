@@ -5,7 +5,7 @@ whether Settings is stock or integrated. A JSON profile does not change the edit
 
 The shipped [Basic](../profiles/basic/config.json) and [Advanced](../profiles/advanced/config.json)
 profiles contain the same visual defaults. Change appearance in the launcher itself where offered:
-Basic: hold Settings and choose Launcher settings; Advanced: Other settings, Launcher appearance.
+Basic: hold Settings and choose Launcher settings; Advanced: Other settings, Appearance (dock, wallpaper, holiday themes and motion).
 Use the remote's reorder/dock controls for app positions. Only installed apps appear.
 
 For defaults built into a custom APK, edit `app/src/main/res/values/config.xml` and rebuild with your

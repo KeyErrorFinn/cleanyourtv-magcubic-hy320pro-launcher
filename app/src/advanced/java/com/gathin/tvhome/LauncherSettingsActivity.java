@@ -23,20 +23,7 @@ import java.util.List;
 public final class LauncherSettingsActivity extends Activity {
     static final String EXTRA_REORDER = "com.gathin.tvhome.extra.REORDER_FROM_SETTINGS";
     private SharedPreferences choices;
-    private final TextView[] columnChoices = new TextView[4];
-    private final TextView[] rowChoices = new TextView[4];
     private static final int[] DOCK_OPACITIES = {100, 70, 50, 30};
-    private final TextView[] dockChoices = new TextView[DOCK_OPACITIES.length];
-    private TextView wallpaperChoice;
-    private TextView animationsChoice;
-    private TextView advancedChoice;
-    private TextView followThemeChoice;
-    private TextView openOnStartChoice;
-    private int columns;
-    private int rowsBelowDock;
-    private int dockOpacity;
-    private boolean animations;
-    private boolean advancedEffects;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -82,118 +69,129 @@ public final class LauncherSettingsActivity extends Activity {
     private BluetoothAudioUi bluetoothAudio;
     private final android.os.Handler soundHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
+    /**
+     * Dock, wallpaper, holiday themes and motion, in the same icon-row design as the other settings pages. Every
+     * choice is saved at once and Home rebuilds when Settings is left; the page is rebuilt after each change so the
+     * values beside the rows are current, and focus returns to the row that was changed.
+     */
     private void showAppearance() {
         page = "appearance";
-        setContentView(R.layout.activity_launcher_settings);
         choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
         Config config = Config.load(this);
-        View reorderChoice = findViewById(R.id.reorderChoice);
-        reorderChoice.setVisibility(config.launcherSettingsButton ? View.VISIBLE : View.GONE);
-        reorderChoice.setOnClickListener(v -> {
-            setResult(RESULT_OK, new Intent().putExtra(EXTRA_REORDER, true));
-            finish();
-        });
-        columns = config.columns;
-        rowsBelowDock = config.rowsBelowDock;
-        dockOpacity = config.dockOpacity;
-        animations = config.animations;
-        advancedEffects = config.animations && config.advancedEffects;
+        boolean animations = config.animations;
+        boolean advancedEffects = config.animations && config.advancedEffects;
+        LinearLayout rows = pageRows("Appearance", "Dock, wallpaper, holiday themes and motion.");
 
-        int[] ids = {R.id.columns4, R.id.columns5, R.id.columns6, R.id.columns7};
-        for (int i = 0; i < ids.length; i++) {
-            final int value = i + 4;
-            columnChoices[i] = findViewById(ids[i]);
-            columnChoices[i].setOnClickListener(v -> {
-                if (columns == value) return;
-                columns = value;
-                choices.edit().putInt("columns", value).apply();
-                changed();
-                refresh();
+        if (config.launcherSettingsButton) {
+            hubRow(rows, R.drawable.settings_list, "Reorder apps", "Move dock apps", () -> {
+                setResult(RESULT_OK, new Intent().putExtra(EXTRA_REORDER, true));
+                finish();
             });
         }
-        int[] rowIds = {R.id.rows0, R.id.rows1, R.id.rows2, R.id.rows3};
-        for (int i = 0; i < rowIds.length; i++) {
-            final int value = i;
-            rowChoices[i] = findViewById(rowIds[i]);
-            rowChoices[i].setOnClickListener(v -> {
-                if (rowsBelowDock == value) return;
-                rowsBelowDock = value;
-                choices.edit().putInt(Config.ROWS_BELOW_DOCK_KEY, value).apply();
-                changed();
-                refresh();
-            });
+
+        sectionHeader(rows, "Layout");
+        hubRow(rows, R.drawable.ic_apps, "Apps per row", String.valueOf(config.columns), () -> choose(
+                "Apps per row", new String[] {"4", "5", "6", "7"}, config.columns - 4,
+                which -> save(editor -> editor.putInt("columns", which + 4))));
+        hubRow(rows, R.drawable.settings_list, "Rows below dock", config.rowsBelowDock == 0 ? "None"
+                : config.rowsBelowDock + (config.rowsBelowDock == 1 ? " row" : " rows"), () -> choose(
+                "Rows below dock", new String[] {"None", "1 row", "2 rows", "3 rows"}, config.rowsBelowDock,
+                which -> save(editor -> editor.putInt(Config.ROWS_BELOW_DOCK_KEY, which))));
+        int opacityChecked = 0;
+        String[] opacityLabels = new String[DOCK_OPACITIES.length];
+        for (int i = 0; i < DOCK_OPACITIES.length; i++) {
+            opacityLabels[i] = DOCK_OPACITIES[i] + "%";
+            if (DOCK_OPACITIES[i] == config.dockOpacity) opacityChecked = i;
         }
-        int[] dockIds = {R.id.dock100, R.id.dock70, R.id.dock50, R.id.dock30};
-        for (int i = 0; i < dockIds.length; i++) {
-            final int value = DOCK_OPACITIES[i];
-            dockChoices[i] = findViewById(dockIds[i]);
-            dockChoices[i].setOnClickListener(v -> {
-                if (dockOpacity == value) return;
-                dockOpacity = value;
-                choices.edit().putInt(Config.DOCK_OPACITY_KEY, value).apply();
-                changed();
-                refresh();
-            });
-        }
-        // Keep the numeric choices increasing in the Hebrew reading direction. Reorder the
-        // actual views so D-pad focus follows their positions without changing the saved values.
-        if (getResources().getBoolean(R.bool.rtl_app_grid)) {
-            reverseRow(columnChoices);
-            reverseRow(rowChoices);
-            reverseRow(dockChoices);
-        }
-        wallpaperChoice = findViewById(R.id.wallpaperChoice);
-        wallpaperChoice.setOnClickListener(v -> showWallpaperPicker());
-        animationsChoice = findViewById(R.id.animationsChoice);
-        animationsChoice.setOnClickListener(v -> {
-            animations = !animations;
-            if (!animations) advancedEffects = false;
-            choices.edit().putBoolean("animations", animations)
-                    .putBoolean("advanced_effects", advancedEffects).apply();
-            changed();
-            refresh();
-        });
-        advancedChoice = findViewById(R.id.advancedChoice);
-        advancedChoice.setOnClickListener(v -> {
-            if (advancedEffects) {
-                setAdvanced(false);
-            } else {
-                new SettingsPopup.Builder(this)
-                        .setTitle(R.string.advanced_effects)
-                        .setMessage(R.string.advanced_effects_warning)
-                        .setPositiveButton(R.string.enable, (dialog, which) -> setAdvanced(true))
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
-            }
-        });
-        openOnStartChoice = findViewById(R.id.openOnStartChoice);
+        final int checkedOpacity = opacityChecked;
+        hubRow(rows, R.drawable.settings_eye, "Dock band opacity", config.dockOpacity + "%", () -> choose(
+                "Dock band opacity", opacityLabels, checkedOpacity,
+                which -> save(editor -> editor.putInt(Config.DOCK_OPACITY_KEY, DOCK_OPACITIES[which]))));
+
+        sectionHeader(rows, "Look");
+        String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
+        hubRow(rows, R.drawable.ic_picture, "Wallpaper", "none".equals(wallpaperCurrent) ? getString(R.string.wallpaper_none)
+                : wallpaperCurrent != null ? wallpaperCurrent : getString(R.string.wallpaper_theme_default),
+                this::showWallpaperPicker);
+        hubRow(rows, R.drawable.settings_calendar, "Seasonal themes", seasonalStatus(), this::showSeasonalPicker);
         if (config.openOnStartChoice) {
-            openOnStartChoice.setVisibility(View.VISIBLE);
-            openOnStartChoice.setOnClickListener(v -> showOpenOnStartPicker());
+            hubRow(rows, R.drawable.ic_home_settings, "Open on start", openOnStartLabel(), this::showOpenOnStartPicker);
         }
-        followThemeChoice = findViewById(R.id.followThemeChoice);
-        followThemeChoice.setOnClickListener(v -> {
-            if (!hasOnTvChoices()) return;
-            choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
-                    .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
-                    .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).commit();
-            Config current = Config.load(this);
-            columns = current.columns;
-            rowsBelowDock = current.rowsBelowDock;
-            dockOpacity = current.dockOpacity;
-            animations = current.animations;
-            advancedEffects = current.animations && current.advancedEffects;
-            changed();
-            refresh();
+
+        sectionHeader(rows, "Motion");
+        hubRow(rows, R.drawable.settings_sliders, "Animations", getString(animations ? R.string.on : R.string.off), () -> {
+            boolean on = !animations;
+            save(editor -> editor.putBoolean("animations", on).putBoolean("advanced_effects", on && advancedEffects));
         });
-        findViewById(R.id.defaultHomeChoice).setOnClickListener(v -> {
+        hubRow(rows, R.drawable.settings_chip, "Advanced effects", getString(advancedEffects ? R.string.on : R.string.off),
+                animations ? () -> {
+                    if (advancedEffects) {
+                        save(editor -> editor.putBoolean("advanced_effects", false));
+                    } else {
+                        new SettingsPopup.Builder(this)
+                                .setTitle(R.string.advanced_effects)
+                                .setMessage(R.string.advanced_effects_warning)
+                                .setPositiveButton(R.string.enable, (dialog, which) ->
+                                        save(editor -> editor.putBoolean("advanced_effects", true)))
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show();
+                    }
+                } : null);
+        if (!animations) rows.getChildAt(rows.getChildCount() - 1).setAlpha(0.45f);
+
+        sectionHeader(rows, "More");
+        boolean onTvChoices = hasOnTvChoices();
+        hubRow(rows, R.drawable.settings_refresh, "Follow theme", onTvChoices ? "Reset my choices" : "Nothing changed", () -> {
+            if (!hasOnTvChoices()) {
+                Toast.makeText(this, R.string.follow_theme_hint, Toast.LENGTH_LONG).show();
+                return;
+            }
+            save(editor -> editor.remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
+                    .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
+                    .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Seasonal.KEY));
+        });
+        hubRow(rows, R.drawable.ic_home_settings, "Choose default home", "Android setting", () -> {
             Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
             open(new Intent(Settings.ACTION_HOME_SETTINGS));
         });
-        findViewById(R.id.tvSettingsChoice).setOnClickListener(v -> showHub());
-        refresh();
-        if (config.launcherSettingsButton) reorderChoice.requestFocus();
-        else columnChoices[Math.max(0, Math.min(columns - 4, 3))].requestFocus();
+        backRow(rows);
+        focusFirst(rows);
+    }
+
+    /** A small caption above a group of rows, in the style of the "CLEANYOURTV" label on every page. */
+    private void sectionHeader(LinearLayout rows, String text) {
+        TextView header = new TextView(this);
+        header.setText(text.toUpperCase(java.util.Locale.ROOT));
+        header.setTextSize(12);
+        header.setLetterSpacing(0.18f);
+        header.setTextColor(0xFF969696);
+        header.setTypeface(getResources().getFont(R.font.outfit_medium));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+        lp.topMargin = rows.getChildCount() == 0 ? 0 : dp(14);
+        lp.bottomMargin = dp(8);
+        lp.leftMargin = dp(8);
+        rows.addView(header, lp);
+    }
+
+    /** A single-choice popup; the pick is passed back as its index and the popup closes. */
+    private void choose(String title, String[] labels, int checked, java.util.function.IntConsumer onPick) {
+        new SettingsPopup.Builder(this)
+                .setTitle(title)
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    dialog.dismiss();
+                    onPick.accept(which);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /** Saves a change to the on-TV choices, tells Home to rebuild, and redraws the page with the new values. */
+    private void save(java.util.function.Consumer<SharedPreferences.Editor> change) {
+        SharedPreferences.Editor editor = choices.edit();
+        change.accept(editor);
+        editor.apply();
+        changed();
+        showAppearance();
     }
 
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
@@ -225,7 +223,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private void backRow(LinearLayout rows) {
-        if ("sound".equals(page) || "storage".equals(page))
+        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page))
             hubRow(rows, R.drawable.ic_settings, "Back to Other settings", "", this::showOther);
         else hubRow(rows, R.drawable.ic_settings, "Back to settings", "", this::showHub);
     }
@@ -369,7 +367,6 @@ public final class LauncherSettingsActivity extends Activity {
         hubRow(rows,R.drawable.settings_code,"ADB settings helper",SettingsSessionClient.connected()?"Connected for this session":"Not connected",()->SessionSettingsUi.helper(this));
         if(SessionSettingsUi.starterAvailable(this))hubRow(rows,R.drawable.settings_code,"Settings Starter","Automatic startup & connection status",()->SessionSettingsUi.openStarter(this));
         hubRow(rows, R.drawable.ic_home_settings, "Appearance", "Dock, wallpaper & motion", this::showAppearance);
-        hubRow(rows, R.drawable.ic_home_settings, "Seasonal themes", seasonalStatus(), this::showSeasonalPicker);
         hubRow(rows, R.drawable.ic_picture, "Sound", "Volume & audio output", this::showSound);
         hubRow(rows, R.drawable.ic_apps, "Storage & USB", "Space & files", this::showStorage);
         backRow(rows);
@@ -387,10 +384,10 @@ public final class LauncherSettingsActivity extends Activity {
         if (Seasonal.OFF.equals(mode)) return "Off";
         if (Seasonal.AUTO.equals(mode)) {
             Season now = Season.on(java.time.LocalDate.now());
-            return now == null ? "Automatic" : "Automatic: " + SEASON_NAMES[now.ordinal()] + " now";
+            return now == null ? "Automatic" : "Auto: " + SEASON_NAMES[now.ordinal()];
         }
         Season kept = Season.fromId(mode);
-        return kept == null ? "Automatic" : "Always " + SEASON_NAMES[kept.ordinal()];
+        return kept == null ? "Automatic" : SEASON_NAMES[kept.ordinal()];
     }
 
     /**
@@ -420,7 +417,7 @@ public final class LauncherSettingsActivity extends Activity {
                     choices.edit().putString(Seasonal.KEY, values[which]).apply();
                     changed();
                     Toast.makeText(this, "Saved. Home updates when you leave Settings.", Toast.LENGTH_SHORT).show();
-                    showOther();
+                    showAppearance();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -1463,12 +1460,6 @@ public final class LauncherSettingsActivity extends Activity {
         }
     }
 
-    private void reverseRow(TextView[] views) {
-        LinearLayout row = (LinearLayout) views[0].getParent();
-        row.removeAllViews();
-        for (int i = views.length - 1; i >= 0; i--) row.addView(views[i]);
-    }
-
     private void showWallpaperPicker() {
         File dir = Config.dir(this);
         List<File> images = new java.util.ArrayList<>(WallpaperRotation.images(
@@ -1494,12 +1485,12 @@ public final class LauncherSettingsActivity extends Activity {
                     }
                     changed();
                     Toast.makeText(this, R.string.wallpaper_applied, Toast.LENGTH_SHORT).show();
-                    refresh();
+                    showAppearance();
                 })
                 .setNeutralButton(R.string.wallpaper_theme_default, (dialog, which) -> {
                     choices.edit().remove(Config.WALLPAPER_CHOICE_KEY).apply();
                     changed();
-                    refresh();
+                    showAppearance();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -1535,7 +1526,7 @@ public final class LauncherSettingsActivity extends Activity {
                         OpenOnStart.skipThisBoot(this);
                         choices.edit().putString(OpenOnStart.KEY, apps.get(which - 1)[1]).apply();
                     }
-                    refresh();
+                    showAppearance();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -1571,43 +1562,11 @@ public final class LauncherSettingsActivity extends Activity {
                 choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
     }
 
-    private void setAdvanced(boolean enabled) {
-        advancedEffects = enabled;
-        choices.edit().putBoolean("advanced_effects", enabled).apply();
-        changed();
-        refresh();
-    }
-
-    private void refresh() {
-        for (int i = 0; i < columnChoices.length; i++) {
-            columnChoices[i].setSelected(columns == i + 4);
-        }
-        for (int i = 0; i < rowChoices.length; i++) {
-            rowChoices[i].setSelected(rowsBelowDock == i);
-        }
-        for (int i = 0; i < dockChoices.length; i++) {
-            dockChoices[i].setSelected(dockOpacity == DOCK_OPACITIES[i]);
-        }
-        animationsChoice.setText(getString(R.string.animations_state,
-                getString(animations ? R.string.on : R.string.off)));
-        advancedChoice.setText(getString(R.string.advanced_effects_state,
-                getString(advancedEffects ? R.string.on : R.string.off)));
-        advancedChoice.setEnabled(animations);
-        advancedChoice.setAlpha(animations ? 1f : 0.5f);
-        String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
-        wallpaperChoice.setText(getString(R.string.wallpaper_state,
-                "none".equals(wallpaperCurrent) ? getString(R.string.wallpaper_none)
-                        : wallpaperCurrent != null ? wallpaperCurrent
-                        : getString(R.string.wallpaper_theme_default)));
-        openOnStartChoice.setText(getString(R.string.open_on_start_state, openOnStartLabel()));
-        followThemeChoice.setSelected(!hasOnTvChoices());
-    }
-
     private boolean hasOnTvChoices() {
         return choices.contains("columns") || choices.contains(Config.ROWS_BELOW_DOCK_KEY)
                 || choices.contains("animations") || choices.contains("advanced_effects")
                 || choices.contains(Config.WALLPAPER_CHOICE_KEY) || choices.contains(Config.DOCK_OPACITY_KEY)
-                || choices.contains(OpenOnStart.KEY);
+                || choices.contains(OpenOnStart.KEY) || choices.contains(Seasonal.KEY);
     }
 
     private void open(Intent intent) {

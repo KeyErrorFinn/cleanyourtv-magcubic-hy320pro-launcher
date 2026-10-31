@@ -12,11 +12,11 @@ artwork and two editions. No root, firmware flashing or system-partition changes
 | Restyled Home, dock, app library and animations | Yes | Yes |
 | HDMI status, casting and USB shortcuts | Yes, where supported | Yes, where supported |
 | Main Settings button | Manufacturer Settings | Integrated eight-section Settings |
-| Appearance configuration | Hold Settings, choose Launcher settings | Other settings, Launcher appearance |
+| Appearance configuration | Hold Settings, choose Launcher settings | Other settings, Appearance |
 | Integrated projection, audio, Bluetooth, network, language and time controls | No | Yes, subject to firmware authority |
 | Privileged settings grants or shell helper | None required | Explicit documented setup |
 | Optional local helper startup after reboot | No | Separate Settings Starter app |
-| Seasonal themes (New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween, Christmas) | Optional, off until you turn it on | In Settings; Automatic by default |
+| Seasonal themes (New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween, Christmas) | Optional, off until you turn it on | In Appearance settings; Automatic by default |
 | Launcher INTERNET permission | None | None |
 
 **Start with Basic if you only want the Home design.** Advanced is for owners who want integrated

@@ -40,8 +40,8 @@ android {
         applicationId providers.gradleProperty('launcherApplicationId').getOrElse('com.gathin.tvhome')
         minSdk 26
         targetSdk 34
-        versionCode 101
-        versionName '1.0.1'
+        versionCode 110
+        versionName '1.1.0'
         buildConfigField 'String', 'SIGNING_CERT_SHA256', '"' + providers.gradleProperty('releaseCertificateSha256').getOrElse('UNCONFIGURED') + '"'
         ndk { abiFilters 'armeabi-v7a' }
         externalNativeBuild { cmake { arguments '-DANDROID_STL=none' } }
