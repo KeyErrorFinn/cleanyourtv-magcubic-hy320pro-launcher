@@ -1,0 +1,17 @@
+{
+  "Basic": {
+    "jvm_tests": 226,
+    "test_failures": 0,
+    "lint_errors": 0,
+    "apk_bytes": 537452
+  },
+  "Advanced": {
+    "jvm_tests": 425,
+    "test_failures": 0,
+    "lint_errors": 0,
+    "apk_bytes": 716557
+  },
+  "same_signer_all_apks": true,
+  "release_tests": 7,
+  "physical_public_artifact_retest": false
+}

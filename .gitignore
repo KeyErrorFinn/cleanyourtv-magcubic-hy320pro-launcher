@@ -1,0 +1,22 @@
+# Build output and per-owner/private state stay local.
+.gradle/
+build/
+app/build/
+app/.cxx/
+local.properties
+dist/
+.local/
+setup-records/
+**/__pycache__/
+**/*.apk
+**/*.idsig
+**/*.keystore
+**/*.jks
+settings-starter/dependencies/
+settings-starter/classes/
+settings-starter/dex/
+settings-starter/generated/
+settings-starter/*.so
+settings-starter/unsigned.apk
+settings-starter/aligned.apk
+settings-starter/*.apk.sha256
