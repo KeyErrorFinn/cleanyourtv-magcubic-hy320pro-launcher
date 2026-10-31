@@ -16,6 +16,12 @@
     <string name="good_night">Доброї ночі</string>
     <string name="festival_dussehra_greeting">Зі святом Дашахра!</string>
     <string name="festival_diwali_greeting">Зі святом Дівалі!</string>
+    <string name="festival_new_year_greeting">З Новим роком</string>
+    <string name="festival_valentines_greeting">З Днем святого Валентина</string>
+    <string name="festival_st_patricks_greeting">З Днем святого Патрика</string>
+    <string name="festival_easter_greeting">З Великоднем</string>
+    <string name="festival_halloween_greeting">З Гелловіном</string>
+    <string name="festival_christmas_greeting">З Різдвом</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Не в мережі</string>
     <string name="not_available">Недоступно на цьому телевізорі</string>

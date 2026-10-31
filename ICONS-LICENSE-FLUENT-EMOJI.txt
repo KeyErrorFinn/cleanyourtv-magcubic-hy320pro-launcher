@@ -1,0 +1,39 @@
+The seasonal skins' pictures in app/src/main/res/drawable-nodpi/ are from Microsoft's Fluent Emoji 3D
+(https://github.com/microsoft/fluentui-emoji), cropped to their visible area and resized to 128 px WebP:
+
+- Halloween: halloween_bat, halloween_ghost, halloween_pumpkin_lit and halloween_pumpkin_dark (Bat, Ghost,
+  Jack-o-lantern). The lit and dark pumpkins are the same picture with the carved face recoloured as a candle-lit
+  and an unlit face. These four are taken from the upstream CleanYourTV launcher.
+- Christmas: season_christmas_gift, season_christmas_tree, season_christmas_snowman (Wrapped gift, Christmas tree,
+  Snowman).
+- New Year: season_newyear_glasses, season_newyear_sparkles, season_newyear_popper (Clinking glasses, Sparkles,
+  Party popper).
+- Easter: season_easter_rabbit, season_easter_chick, season_easter_tulip (Rabbit face, Hatching chick, Tulip).
+- Valentine's Day: season_valentine_letter, season_valentine_heart, season_valentine_rose (Love letter, Red heart,
+  Rose).
+- St. Patrick's Day: season_patrick_rainbow, season_patrick_clover, season_patrick_coin (Rainbow, Four leaf
+  clover, Coin).
+
+Fluent Emoji is under the MIT licence below.
+
+MIT License
+
+Copyright (c) Microsoft Corporation.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE

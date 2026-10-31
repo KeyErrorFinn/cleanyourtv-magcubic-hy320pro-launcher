@@ -7,29 +7,36 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 /**
- * A festive skin set by a theme's config.json: {@code festival}, {@code festival_until}, {@code greeting}
- * and {@code accent_color}. While it is active the pills get festive icons (a diya for the network, a bell
- * for Inputs, a marigold for Settings), the greeting is replaced and the focus glow takes the accent colour.
- * It switches itself off after {@code festival_until}, so nobody has to remember to undo it.
+ * A festive skin, from a theme's config.json ({@code festival}, {@code festival_until}, {@code greeting} and
+ * {@code accent_color}) or from the seasonal setting (see {@link Seasonal}). While it is active the pills get
+ * festive icons (a diya for the network, a bell for Inputs, a marigold for Settings; each {@link Season} has its own
+ * three), the greeting is replaced and the focus glow takes the accent colour. It switches itself off after
+ * {@code festival_until}, so nobody has to remember to undo it.
  */
 final class Festival {
 
-    static final Festival NONE = new Festival("", null, "", 0);
+    static final Festival NONE = new Festival("", null, null, "", 0, false);
 
     /** Warm diya gold, the accent when a theme names a festival but no colour. */
     static final int DEFAULT_ACCENT = 0xFFFFB23C;
 
     /** Lower-case festival name, or "" for none. */
     final String name;
+    /** The holiday this skin is for when the name is one of {@link Season}'s ids, else null (the diya's skin). */
+    final Season season;
     /** Last day the skin shows, inclusive; null for no end date. */
     final LocalDate until;
     /** Text that replaces the time-of-day greeting; "" uses the festival's own default. */
     final String greeting;
-    /** Focus glow colour as 0xAARRGGBB, or 0 for {@link #DEFAULT_ACCENT}. */
+    /** Focus glow colour as 0xAARRGGBB, or 0 for the festival's own default. */
     final int accent;
+    /** Whether the seasonal setting picked this skin (rather than a theme naming it), so the calendar can replace it. */
+    final boolean seasonal;
 
-    private Festival(String name, LocalDate until, String greeting, int accent) {
+    private Festival(String name, Season season, LocalDate until, String greeting, int accent, boolean seasonal) {
         this.name = name;
+        this.seasonal = seasonal;
+        this.season = season;
         this.until = until;
         this.greeting = greeting;
         this.accent = accent;
@@ -51,7 +58,13 @@ final class Festival {
             }
         }
         String g = greeting == null ? "" : Cards.cleanLabel(greeting, "");
-        return new Festival(n, end, g, parseColor(accent));
+        Season season = Season.fromId(n);
+        return new Festival(season != null ? season.id : n, season, end, g, parseColor(accent), false);
+    }
+
+    /** The skin for {@code season}, ending after {@code until} (inclusive), or with no end date when null. */
+    static Festival ofSeason(Season season, LocalDate until) {
+        return new Festival(season.id, season, until, "", 0, true);
     }
 
     /** Whether the skin shows today. */
@@ -62,6 +75,22 @@ final class Festival {
     /** The greeting to show while active, or "" to keep the normal time-of-day greeting. */
     String greetingText(Resources res) {
         if (!greeting.isEmpty()) return greeting;
+        if (season != null) {
+            switch (season) {
+                case NEW_YEAR:
+                    return res.getString(R.string.festival_new_year_greeting);
+                case VALENTINES:
+                    return res.getString(R.string.festival_valentines_greeting);
+                case ST_PATRICKS:
+                    return res.getString(R.string.festival_st_patricks_greeting);
+                case EASTER:
+                    return res.getString(R.string.festival_easter_greeting);
+                case HALLOWEEN:
+                    return res.getString(R.string.festival_halloween_greeting);
+                default:
+                    return res.getString(R.string.festival_christmas_greeting);
+            }
+        }
         switch (name) {
             case "dussehra":
                 return res.getString(R.string.festival_dussehra_greeting);
@@ -73,7 +102,8 @@ final class Festival {
     }
 
     int accentColor() {
-        return accent != 0 ? accent : DEFAULT_ACCENT;
+        if (accent != 0) return accent;
+        return season != null ? season.accent : DEFAULT_ACCENT;
     }
 
     /** {@code #RRGGBB} to an opaque colour, anything else to 0. */

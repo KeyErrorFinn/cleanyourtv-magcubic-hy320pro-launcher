@@ -11,7 +11,6 @@ import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 
@@ -27,7 +26,7 @@ import java.util.Random;
  * frosted and on the white (focused) pill. The flame flickers only while started, at about 15 fps; nothing is
  * allocated per frame. The first {@link #setFlame} call applies its level without an animation.
  */
-public final class DiyaDrawable extends Drawable implements Animatable {
+public final class DiyaDrawable extends Drawable implements FestiveLamp {
 
     private static final float BOX = 24f;
     private static final long FRAME_MS = 66;

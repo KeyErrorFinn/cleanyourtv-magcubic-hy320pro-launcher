@@ -12,12 +12,16 @@ android {
         basic {
             dimension 'edition'
             buildConfigField 'boolean', 'ADVANCED_SETTINGS', 'false'
+            // Seasonal skins are an opt-in extra here: set seasonal_mode in config.xml or a theme to turn them on.
+            buildConfigField 'String', 'SEASONAL_DEFAULT', '"off"'
             versionNameSuffix '-basic'
             resValue 'string', 'edition_app_name', 'CleanYourTV HY320 Pro Basic'
         }
         advanced {
             dimension 'edition'
             buildConfigField 'boolean', 'ADVANCED_SETTINGS', 'true'
+            // Automatic unless Settings > Seasonal themes says otherwise.
+            buildConfigField 'String', 'SEASONAL_DEFAULT', '"auto"'
             versionNameSuffix '-advanced'
             resValue 'string', 'edition_app_name', 'CleanYourTV HY320 Pro Advanced'
         }

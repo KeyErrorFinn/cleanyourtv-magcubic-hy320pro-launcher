@@ -8,6 +8,8 @@ This standalone extraction starts from its commit `99192faa` (2026-10-31).
 Original copyright/permission text is retained in [LICENSE](LICENSE).
 
 - Outfit font: [SIL Open Font License](FONT-LICENSE-OFL.txt).
+- Seasonal skin pictures: Microsoft's [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) 3D, MIT;
+  the list and licence are in [ICONS-LICENSE-FLUENT-EMOJI.txt](ICONS-LICENSE-FLUENT-EMOJI.txt).
 - AndroidX RecyclerView/DynamicAnimation: Apache 2.0, resolved by Gradle; see the upstream dependency projects.
 - Gradle wrapper: Gradle build tooling, Apache 2.0; the wrapper downloads the pinned distribution
   specified in `gradle/wrapper/gradle-wrapper.properties`.

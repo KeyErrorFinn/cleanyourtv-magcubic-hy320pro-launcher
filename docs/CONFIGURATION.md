@@ -19,6 +19,7 @@ own consistent signing key. Relevant settings:
 | `top_bar_apps` | Installed app shortcuts, including the existing casting/USB receivers |
 | `show_greeting`, `greeting_name` | Show greeting and optional text/name |
 | `wallpaper` in JSON | Whether a supported local wallpaper/theme image is drawn |
+| `seasonal_mode` (config.xml), `seasonal` (JSON) | Holiday skins: `off`, `auto` or one holiday. Basic defaults to off, Advanced to auto; see [Seasonal themes](hy320pro/SEASONAL.md) |
 | `uniform_tiles` | False keeps the shipped artwork layout; true uses the alternate uniform-card layout |
 
 The launcher clock follows Android's system format. Basic changes it through stock Settings; Advanced

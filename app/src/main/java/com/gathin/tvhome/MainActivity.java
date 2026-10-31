@@ -225,12 +225,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean singleRow;
     /** The highlight springs past its target (config.xml, focus_overshoot); false goes straight there. */
     private boolean focusOvershoot;
-    /** Festive skin from the theme (see Festival); applied while it is active today. */
+    /** Festive skin from the theme or the seasonal setting (see Festival); applied while it is active today. */
     private Festival festival = Festival.NONE;
     private boolean festive;
-    private DiyaDrawable diya;
-    private BellDrawable bell;
-    private MarigoldDrawable marigold;
+    /** The seasonal setting this Home was built with (see Seasonal), to notice a holiday starting or ending. */
+    private String seasonalMode = Seasonal.OFF;
+    /** The network pill's festive light (the diya, the jack-o'-lantern or a seasonal picture), while a skin is on. */
+    private FestiveLamp lamp;
     private int greetingColor;
     /** The day the petal shower last played, so it greets the first Home of each day only. */
     private static LocalDate lastPetalShower;
@@ -365,7 +366,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         public void run() {
             updateGreeting();
             updateRace();
-            // The pill follows the network callbacks and each return to Home; only the diya's flame follows the
+            // The pill follows the network callbacks and each return to Home; only the festive light (the diya, the pumpkin or a seasonal picture) follows the
             // signal level, so only it needs this minute's binder calls (about 7 ms on the UI thread).
             if (festive) updateWifiLabel();
             sky.update();
@@ -436,6 +437,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         singleRow = cfg.singleRow;
         focusOvershoot = cfg.focusOvershoot;
         festival = cfg.festival;
+        seasonalMode = cfg.seasonalMode;
         festive = festival.active(LocalDate.now());
         liveTvPkg = cfg.liveTvPackage;
         idleClockMs = cfg.homeIdleClockMinutes * MINUTE_MS;
@@ -978,7 +980,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onResume();
         if (waitingForUnlock) { if (userStorageUnlocked()) recreate(); return; }
         // A festival that started or ended while Home was in the background: rebuild with or without it.
-        if (festive != festival.active(LocalDate.now())) {
+        if (festivalChanged(LocalDate.now())) {
             recreate();
             return;
         }
@@ -1023,12 +1025,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         sky.update();
         wallpaperPlayer.start();
         handler.postDelayed(minuteTick, MINUTE_MS);
-        if (festive && diya != null) {
-            diya.start();
+        if (festive && lamp != null) {
+            lamp.start();
             LocalDate today = LocalDate.now();
             if (!reducedMotion && !today.equals(lastPetalShower)) {
                 lastPetalShower = today;
-                handler.postDelayed(this::playPetalShower, 450);
+                handler.postDelayed(this::playFestiveBurst, 450);
             }
         }
     }
@@ -1200,7 +1202,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroArt.animate().cancel();
         handler.removeCallbacks(minuteTick);
         stopStats();
-        if (diya != null) diya.stop();
+        if (lamp != null) lamp.stop();
         cancelPendingFocusScroll();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
         if (cardPrompt != null) cardPrompt.dismiss();
@@ -2682,7 +2684,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         String text = getString(R.string.wifi);
         boolean vpn = false, online = false, validated = false;
         int icon = R.drawable.ic_wifi;
-        // The diya's flame: 0 is out (offline), 1 to 4 follow the Wi-Fi signal, Ethernet burns steady at 4.
+        // The festive light: 0 is out (offline), 1 to 4 follow the Wi-Fi signal, Ethernet burns steady at 4.
         int flame = 0;
         boolean steady = false;
         try {
@@ -2759,10 +2761,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             Runnable refresh = shortcutRefresh.get(btnWifi);
             if (refresh != null) refresh.run(); else btnWifi.setText(null);
         }
-        if (festive && diya != null) {
+        if (festive && lamp != null) {
             if (online && flame == 0) flame = 3;   // online some other way (cellular, USB tethering)
-            diya.setSteady(steady);
-            diya.setFlame(flame);
+            lamp.setSteady(steady);
+            lamp.setFlame(flame);
         } else {
             if (icon != wifiIcon) {
                 wifiIcon = icon;
@@ -2809,21 +2811,125 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     // ---- festive skin ------------------------------------------------------------------------------
 
     /**
-     * Swaps the pill icons for the festival's: a bell for Inputs that swings when focused, a diya for the
-     * network whose flame follows the connection, and a marigold for Settings that turns when focused.
+     * Swaps the pill icons for the festival's. A theme's own festival gets a bell for Inputs that swings when
+     * focused, a diya for the network whose flame follows the connection, and a marigold for Settings that turns
+     * when focused. Each seasonal skin has its own three pictures, see {@link #applySeasonSkin}.
      */
     private void applyFestiveSkin(TextView inputs, TextView settings) {
-        bell = new BellDrawable(density);
-        marigold = new MarigoldDrawable(density);
-        diya = new DiyaDrawable(density);
+        if (festival.season != null) {
+            applySeasonSkin(festival.season, inputs, settings);
+            return;
+        }
+        BellDrawable bell = new BellDrawable(density);
+        MarigoldDrawable marigold = new MarigoldDrawable(density);
+        DiyaDrawable diya = new DiyaDrawable(density);
         bell.setReducedMotion(reducedMotion);
         marigold.setReducedMotion(reducedMotion);
         diya.setReducedMotion(reducedMotion);
-        setFestiveIcon(inputs, bell);
+        lamp = diya;
+        if (!inputsShowsHdmiStatus()) {
+            setFestiveIcon(inputs, bell);
+            addFocusAction(inputs, bell::ring);
+        }
         setFestiveIcon(btnWifi, diya);
         setFestiveIcon(settings, marigold);
-        addFocusAction(inputs, bell::ring);
         addFocusAction(settings, marigold::turn);
+    }
+
+    /**
+     * Whether the Inputs pill carries this projector's HDMI signal indicator (green when a source is live, red when
+     * not). A festive icon would hide it, so the skins leave that pill alone and dress the other two.
+     */
+    private boolean inputsShowsHdmiStatus() {
+        return sourcePanelExtra.equals("input_source=HDMI2");
+    }
+
+    /**
+     * The pictures of a seasonal skin: one for Inputs and one for Settings that each play a short motion when the
+     * pill gains focus, and one for the network pill that follows the connection (lit while online, muted when not).
+     * Halloween keeps its bat, jack-o'-lantern and ghost; the others have their own.
+     */
+    private void applySeasonSkin(Season season, TextView inputs, TextView settings) {
+        int inputsPicture, settingsPicture, lampPicture, inputsMotion, settingsMotion;
+        switch (season) {
+            case CHRISTMAS:
+                inputsPicture = R.drawable.season_christmas_gift;
+                lampPicture = R.drawable.season_christmas_tree;
+                settingsPicture = R.drawable.season_christmas_snowman;
+                inputsMotion = SeasonIconDrawable.HOP;
+                settingsMotion = SeasonIconDrawable.WOBBLE;
+                break;
+            case NEW_YEAR:
+                inputsPicture = R.drawable.season_newyear_glasses;
+                lampPicture = R.drawable.season_newyear_sparkles;
+                settingsPicture = R.drawable.season_newyear_popper;
+                inputsMotion = SeasonIconDrawable.WOBBLE;
+                settingsMotion = SeasonIconDrawable.HOP;
+                break;
+            case EASTER:
+                inputsPicture = R.drawable.season_easter_rabbit;
+                lampPicture = R.drawable.season_easter_chick;
+                settingsPicture = R.drawable.season_easter_tulip;
+                inputsMotion = SeasonIconDrawable.HOP;
+                settingsMotion = SeasonIconDrawable.WOBBLE;
+                break;
+            case VALENTINES:
+                inputsPicture = R.drawable.season_valentine_letter;
+                lampPicture = R.drawable.season_valentine_heart;
+                settingsPicture = R.drawable.season_valentine_rose;
+                inputsMotion = SeasonIconDrawable.PULSE;
+                settingsMotion = SeasonIconDrawable.WOBBLE;
+                break;
+            case ST_PATRICKS:
+                inputsPicture = R.drawable.season_patrick_rainbow;
+                lampPicture = R.drawable.season_patrick_clover;
+                settingsPicture = R.drawable.season_patrick_coin;
+                inputsMotion = SeasonIconDrawable.PULSE;
+                settingsMotion = SeasonIconDrawable.HOP;
+                break;
+            default:
+                inputsPicture = R.drawable.halloween_bat;
+                lampPicture = 0;
+                settingsPicture = R.drawable.halloween_ghost;
+                inputsMotion = SeasonIconDrawable.FLAP;
+                settingsMotion = SeasonIconDrawable.FLOAT;
+                break;
+        }
+        SeasonIconDrawable settingsIcon = new SeasonIconDrawable(getResources(), density, settingsPicture, settingsMotion);
+        settingsIcon.setReducedMotion(reducedMotion);
+        FestiveLamp light;
+        Drawable lightIcon;
+        if (season == Season.HALLOWEEN) {
+            JackOLanternDrawable pumpkin = new JackOLanternDrawable(getResources(), density);
+            light = pumpkin;
+            lightIcon = pumpkin;
+        } else {
+            SeasonLampDrawable picture = new SeasonLampDrawable(getResources(), density, lampPicture);
+            light = picture;
+            lightIcon = picture;
+        }
+        light.setReducedMotion(reducedMotion);
+        lamp = light;
+        if (!inputsShowsHdmiStatus()) {
+            SeasonIconDrawable inputsIcon = new SeasonIconDrawable(getResources(), density, inputsPicture, inputsMotion);
+            inputsIcon.setReducedMotion(reducedMotion);
+            setFestiveIcon(inputs, inputsIcon);
+            addFocusAction(inputs, inputsIcon::nudge);
+        }
+        setFestiveIcon(btnWifi, lightIcon);
+        setFestiveIcon(settings, settingsIcon);
+        addFocusAction(settings, settingsIcon::nudge);
+    }
+
+    /** Whether the skin on screen is no longer the one today calls for: a holiday began or ended, or the day moved on. */
+    private boolean festivalChanged(LocalDate today) {
+        if (festive != festival.active(today)) return true;
+        // A seasonal skin follows the calendar, so the next holiday (or the end of this one) replaces it. A skin a
+        // theme named itself is left to its own end date.
+        if (festival.seasonal || !festive) {
+            return Seasonal.season(seasonalMode, today) != (festive ? festival.season : null);
+        }
+        return false;
     }
 
     private static void setFestiveIcon(TextView pill, Drawable icon) {
@@ -2841,11 +2947,55 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         });
     }
 
-    private void playPetalShower() {
+    /** The first Home of the day's greeting: bats for Halloween, otherwise the season's own fall (petals for a theme's). */
+    private void playFestiveBurst() {
         if (isFinishing() || isDestroyed()) return;
+        FrameLayout.LayoutParams full = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        Season season = festival.season;
+        if (season == Season.HALLOWEEN) {
+            BatFlightView bats = new BatFlightView(this);
+            root.addView(bats, full);
+            bats.play(16, 2800, () -> root.removeView(bats));
+            return;
+        }
+        if (season != null) {
+            int kind, particles;
+            long duration;
+            switch (season) {
+                case CHRISTMAS:
+                    kind = SeasonBurstView.SNOW;
+                    particles = 80;
+                    duration = 4200;
+                    break;
+                case NEW_YEAR:
+                    kind = SeasonBurstView.CONFETTI;
+                    particles = 90;
+                    duration = 2800;
+                    break;
+                case VALENTINES:
+                    kind = SeasonBurstView.HEARTS;
+                    particles = 26;
+                    duration = 3600;
+                    break;
+                case ST_PATRICKS:
+                    kind = SeasonBurstView.CLOVERS;
+                    particles = 34;
+                    duration = 3000;
+                    break;
+                default:
+                    kind = SeasonBurstView.BLOSSOMS;
+                    particles = 44;
+                    duration = 3000;
+                    break;
+            }
+            SeasonBurstView burst = new SeasonBurstView(this);
+            root.addView(burst, full);
+            burst.play(kind, particles, duration, () -> root.removeView(burst));
+            return;
+        }
         PetalShowerView shower = new PetalShowerView(this);
-        root.addView(shower, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        root.addView(shower, full);
         shower.play(60, 2200, () -> root.removeView(shower));
     }
 
@@ -2895,7 +3045,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void updateHdmiConnectionIcon(TvInputManager manager) {
-        if (btnInputs == null || !sourcePanelExtra.equals("input_source=HDMI2")) return;
+        if (btnInputs == null || !inputsShowsHdmiStatus()) return;
         // This firmware leaves its input list empty after a cold boot without an active
         // source. Keep the requested red indicator until an active signal is reported.
         int status = 1;

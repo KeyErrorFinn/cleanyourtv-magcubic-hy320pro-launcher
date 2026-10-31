@@ -439,4 +439,10 @@
          faint outer glow), rim (the crisp rim alone, no sheen, fill or glow, for a quiet focus over a wallpaper) or
          halo (the rim with a lighter outer glow). Can also be set with "glass_style": "rim" in a theme's config.json. -->
     <string name="glass_style" translatable="false">glass</string>
+    <!-- Seasonal skins (New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween, Christmas): off, auto (each
+         holiday on its own dates) or one holiday's name (new_year, valentines, st_patricks, easter, halloween,
+         christmas) to keep until changed. Empty means the edition's default: Automatic on the Advanced edition,
+         off on the Basic one. The Advanced edition's Settings choice wins over this. Can also be set with
+         "seasonal" in a theme's config.json. A festival a theme names itself ("festival") wins while it runs. -->
+    <string name="seasonal_mode" translatable="false"></string>
 </resources>

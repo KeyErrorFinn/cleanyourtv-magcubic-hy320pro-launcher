@@ -16,6 +16,12 @@
     <string name="good_night">Доброй ночи</string>
     <string name="festival_dussehra_greeting">С праздником Дашахра!</string>
     <string name="festival_diwali_greeting">С праздником Дивали!</string>
+    <string name="festival_new_year_greeting">С Новым годом</string>
+    <string name="festival_valentines_greeting">С Днём святого Валентина</string>
+    <string name="festival_st_patricks_greeting">С Днём святого Патрика</string>
+    <string name="festival_easter_greeting">С Пасхой</string>
+    <string name="festival_halloween_greeting">С Хэллоуином</string>
+    <string name="festival_christmas_greeting">С Рождеством</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Нет сети</string>
     <string name="not_available">Недоступно на этом телевизоре</string>

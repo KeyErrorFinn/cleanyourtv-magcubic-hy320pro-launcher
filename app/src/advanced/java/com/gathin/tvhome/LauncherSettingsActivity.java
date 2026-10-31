@@ -369,10 +369,61 @@ public final class LauncherSettingsActivity extends Activity {
         hubRow(rows,R.drawable.settings_code,"ADB settings helper",SettingsSessionClient.connected()?"Connected for this session":"Not connected",()->SessionSettingsUi.helper(this));
         if(SessionSettingsUi.starterAvailable(this))hubRow(rows,R.drawable.settings_code,"Settings Starter","Automatic startup & connection status",()->SessionSettingsUi.openStarter(this));
         hubRow(rows, R.drawable.ic_home_settings, "Appearance", "Dock, wallpaper & motion", this::showAppearance);
+        hubRow(rows, R.drawable.ic_home_settings, "Seasonal themes", seasonalStatus(), this::showSeasonalPicker);
         hubRow(rows, R.drawable.ic_picture, "Sound", "Volume & audio output", this::showSound);
         hubRow(rows, R.drawable.ic_apps, "Storage & USB", "Space & files", this::showStorage);
         backRow(rows);
         focusFirst(rows);
+    }
+
+    /** The display names of {@link Season#values()}, in the same order. */
+    private static final String[] SEASON_NAMES = {"New Year", "Valentine's Day", "St. Patrick's Day", "Easter", "Halloween", "Christmas"};
+    /** When each one shows in Automatic mode, in the same order. */
+    private static final String[] SEASON_DATES = {"27 Dec to 2 Jan", "7 to 14 Feb", "10 to 17 Mar", "the week before Easter to Easter Monday", "15 Oct to 1 Nov", "10 to 26 Dec"};
+
+    /** Automatic, Off or the name of the kept holiday, for the row on the Other settings page. */
+    private String seasonalStatus() {
+        String mode = Config.load(this).seasonalMode;
+        if (Seasonal.OFF.equals(mode)) return "Off";
+        if (Seasonal.AUTO.equals(mode)) {
+            Season now = Season.on(java.time.LocalDate.now());
+            return now == null ? "Automatic" : "Automatic: " + SEASON_NAMES[now.ordinal()] + " now";
+        }
+        Season kept = Season.fromId(mode);
+        return kept == null ? "Automatic" : "Always " + SEASON_NAMES[kept.ordinal()];
+    }
+
+    /**
+     * Automatic, Off, or one holiday to keep for as long as it stays chosen. Saved at once; Home rebuilds with it
+     * when Settings is left (the same revision count every other Home setting uses).
+     */
+    private void showSeasonalPicker() {
+        choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
+        Season[] seasons = Season.values();
+        String[] labels = new String[seasons.length + 2];
+        String[] values = new String[seasons.length + 2];
+        labels[0] = "Automatic (each holiday on its own dates)";
+        values[0] = Seasonal.AUTO;
+        labels[1] = "Off";
+        values[1] = Seasonal.OFF;
+        for (int i = 0; i < seasons.length; i++) {
+            labels[i + 2] = "Always " + SEASON_NAMES[seasons[i].ordinal()] + " (" + SEASON_DATES[seasons[i].ordinal()] + " when automatic)";
+            values[i + 2] = seasons[i].id;
+        }
+        String current = Config.load(this).seasonalMode;
+        int checked = 0;
+        for (int i = 0; i < values.length; i++) if (values[i].equals(current)) checked = i;
+        new SettingsPopup.Builder(this)
+                .setTitle("Seasonal themes")
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    dialog.dismiss();
+                    choices.edit().putString(Seasonal.KEY, values[which]).apply();
+                    changed();
+                    Toast.makeText(this, "Saved. Home updates when you leave Settings.", Toast.LENGTH_SHORT).show();
+                    showOther();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void standardPreferenceRow(LinearLayout rows, String label, String key, String[] values, String[] labels, Runnable refreshPage) {

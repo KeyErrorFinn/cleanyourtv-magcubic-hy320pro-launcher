@@ -16,6 +16,12 @@
     <string name="good_night">Good night</string>
     <string name="festival_dussehra_greeting">Happy Dussehra</string>
     <string name="festival_diwali_greeting">Happy Diwali</string>
+    <string name="festival_new_year_greeting">Happy New Year</string>
+    <string name="festival_valentines_greeting">Happy Valentine\'s Day</string>
+    <string name="festival_st_patricks_greeting">Happy St. Patrick\'s Day</string>
+    <string name="festival_easter_greeting">Happy Easter</string>
+    <string name="festival_halloween_greeting">Happy Halloween</string>
+    <string name="festival_christmas_greeting">Merry Christmas</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>
     <string name="not_available">Not available on this TV</string>

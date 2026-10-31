@@ -16,6 +16,7 @@ artwork and two editions. No root, firmware flashing or system-partition changes
 | Integrated projection, audio, Bluetooth, network, language and time controls | No | Yes, subject to firmware authority |
 | Privileged settings grants or shell helper | None required | Explicit documented setup |
 | Optional local helper startup after reboot | No | Separate Settings Starter app |
+| Seasonal themes (New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween, Christmas) | Optional, off until you turn it on | In Settings; Automatic by default |
 | Launcher INTERNET permission | None | None |
 
 **Start with Basic if you only want the Home design.** Advanced is for owners who want integrated
@@ -32,7 +33,7 @@ Tested on **Magcubic HY320 Pro**, Android 14 / SDK 34, firmware
 `Projector_20260713.153921`, device `rk3566_rgo`, board `exdroid`, 32-bit ARM userland.
 The retail model name alone is insufficient. HY320, HY320 Mini, HY300 and HY300 Pro are not established
 compatible. Advanced refuses integrated controls on an unrecognised firmware/device/board.
-See [compatibility and verification](docs/hy320pro/COMPATIBILITY.md).
+See [compatibility and verification](docs/hy320pro/COMPATIBILITY.md). [Seasonal themes](docs/hy320pro/SEASONAL.md) explains the holiday skins.
 
 The original Advanced implementation was verified on one physical unit, including optical adjustments
 and helper startup after reboot with Wireless debugging off. The new public edition split and signing
