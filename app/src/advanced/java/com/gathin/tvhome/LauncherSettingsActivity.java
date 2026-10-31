@@ -376,7 +376,7 @@ public final class LauncherSettingsActivity extends Activity {
     /** The display names of {@link Season#values()}, in the same order. */
     private static final String[] SEASON_NAMES = {"New Year", "Valentine's Day", "St. Patrick's Day", "Easter", "Halloween", "Christmas"};
     /** When each one shows in Automatic mode, in the same order. */
-    private static final String[] SEASON_DATES = {"27 Dec to 2 Jan", "7 to 14 Feb", "10 to 17 Mar", "the week before Easter to Easter Monday", "15 Oct to 1 Nov", "10 to 26 Dec"};
+    private static final String[] SEASON_DATES = {"27 Dec to 2 Jan", "7 to 14 Feb", "10 to 17 Mar", "9 days before to Easter Monday", "15 Oct to 1 Nov", "10 to 26 Dec"};
 
     /** Automatic, Off or the name of the kept holiday, for the row on the Other settings page. */
     private String seasonalStatus() {
@@ -404,7 +404,7 @@ public final class LauncherSettingsActivity extends Activity {
         labels[1] = "Off";
         values[1] = Seasonal.OFF;
         for (int i = 0; i < seasons.length; i++) {
-            labels[i + 2] = "Always " + SEASON_NAMES[seasons[i].ordinal()] + " (" + SEASON_DATES[seasons[i].ordinal()] + " when automatic)";
+            labels[i + 2] = "Always " + SEASON_NAMES[seasons[i].ordinal()] + " (auto: " + SEASON_DATES[seasons[i].ordinal()] + ")";
             values[i + 2] = seasons[i].id;
         }
         String current = Config.load(this).seasonalMode;

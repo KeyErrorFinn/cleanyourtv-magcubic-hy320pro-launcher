@@ -8,6 +8,14 @@ Home opens each day. Your wallpaper, dock, apps and layout are left alone, and t
 still and the daily animation is skipped. The pictures are bundled; nothing is downloaded and the launcher gains no
 permission.
 
+![Home dressed for Halloween on the HY320 Pro](seasonal-halloween.png)
+
+Home on 31 October with Automatic selected: the greeting, the focus glow and the network and Settings pills change; the HDMI indicator stays.
+
+![Appearance settings on the HY320 Pro, Advanced edition](appearance.png)
+
+Advanced edition: Settings, Other settings, Appearance. Seasonal themes sits under Look.
+
 ## Choosing
 
 | Setting | What Home does |
