@@ -3,7 +3,7 @@
 This launcher is derived from [Gathin23/CleanYourTV](https://github.com/Gathin23/cleanyourtv),
 MIT licensed. The reference source snapshot was `eb0131a3`; device-specific development and
 public Basic/Advanced packaging were subsequently published in
-[KeyErrorFinn/cleanyourtv-magcubic-hy320pro](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro).
+[the contribution fork](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher-contrib).
 This standalone extraction starts from its commit `99192faa` (2026-10-31).
 Original copyright/permission text is retained in [LICENSE](LICENSE).
 

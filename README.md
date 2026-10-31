@@ -1,5 +1,8 @@
 # CleanYourTV for Magcubic HY320 Pro
 
+**Main project: launcher source, Basic/Advanced editions and downloads.**
+For upstream device-note submissions only, use the separate [contribution fork](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher-contrib).
+
 Implementation source for the [Magcubic HY320 Pro device setup](docs/device.md), based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv).
 Apple TV inspired Home with six dock slots, black background, expanding shortcuts, edge-to-edge app
 artwork and two editions. No root, firmware flashing or system-partition changes.
@@ -38,7 +41,7 @@ retested as public release builds. See the release validation report for exact c
 
 ## Get started
 
-[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases) ? [Device guide](docs/device.md) ? [Basic profile](profiles/basic/README.md) ? [Advanced profile](profiles/advanced/README.md)
+[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases) | [Device guide](docs/device.md) | [Basic profile](profiles/basic/README.md) | [Advanced profile](profiles/advanced/README.md)
 
 
 Run commands from the root of this repository. Only the HY320 Pro launcher, its companion and their supporting files are included.
