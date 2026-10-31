@@ -399,12 +399,12 @@ public final class LauncherSettingsActivity extends Activity {
         Season[] seasons = Season.values();
         String[] labels = new String[seasons.length + 2];
         String[] values = new String[seasons.length + 2];
-        labels[0] = "Automatic (each holiday on its own dates)";
+        labels[0] = "Automatic";
         values[0] = Seasonal.AUTO;
         labels[1] = "Off";
         values[1] = Seasonal.OFF;
         for (int i = 0; i < seasons.length; i++) {
-            labels[i + 2] = "Always " + SEASON_NAMES[seasons[i].ordinal()] + " (auto: " + SEASON_DATES[seasons[i].ordinal()] + ")";
+            labels[i + 2] = SEASON_NAMES[seasons[i].ordinal()] + " (" + SEASON_DATES[seasons[i].ordinal()] + ")";
             values[i + 2] = seasons[i].id;
         }
         String current = Config.load(this).seasonalMode;
