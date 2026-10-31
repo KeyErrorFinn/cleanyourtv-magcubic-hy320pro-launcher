@@ -17,13 +17,25 @@ Christmas**. Each one changes:
 Your apps and layout are left alone. With reduced motion on, the icons are still and the daily animation is
 skipped. Nothing is downloaded and the launcher gains no permission.
 
-![Home dressed for Halloween on the HY320 Pro](seasonal-halloween.png)
+![Home dressed for Halloween on the HY320 Pro](seasonal-halloween.jpg)
 
-Home on 31 October with Automatic selected: the greeting, the focus glow and the network and Settings pills change; the HDMI indicator stays.
+Halloween on 31 October with Automatic selected, with the first-open bats still flying.
+
+![Christmas on the HY320 Pro](seasonal-christmas.jpg)
+
+Christmas. The HDMI indicator stays on the Inputs pill in every season.
+
+![Easter on the HY320 Pro](seasonal-easter.jpg)
+
+Easter. Wallpaper, dock band, pill icons, greeting and focus glow all follow the holiday.
 
 ![Appearance settings on the HY320 Pro, Advanced edition](appearance.png)
 
 Advanced edition: Settings, Other settings, Appearance. Seasonal themes sits under Look.
+
+![ADB settings helper page](helper-page.jpg)
+
+Other settings now has one ADB settings helper entry: this session's status and controls, and Settings Starter for start-after-reboot.
 
 ## Choosing
 
