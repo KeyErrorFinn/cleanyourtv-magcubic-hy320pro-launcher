@@ -38,6 +38,8 @@ and is not included in this grant command. Save its `.local/.../original.json` f
 
 ## Optional Settings Starter
 
+In Settings, Other settings, **ADB settings helper** is the one place for both: it shows whether this session is connected, lets you change its length or stop it, and has a **Settings Starter** row that opens the companion for start-after-reboot and pairing. The companion stays a separate app on purpose: it alone holds the network permission and the pairing identity, and the launcher keeps no INTERNET permission. Its settings are answered only to the computer shell, so the launcher cannot show or change them itself.
+
 Install the same-signed `CleanYourTV-Settings-Starter.apk` using the normal install script. The
 companion has INTERNET (loopback TLS ADB client only), ACCESS_NETWORK_STATE, RECEIVE_BOOT_COMPLETED,
 WRITE_SECURE_SETTINGS (only adb_wifi_enabled) and the custom signature permission. No root,

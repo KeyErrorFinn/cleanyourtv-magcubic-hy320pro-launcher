@@ -223,7 +223,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private void backRow(LinearLayout rows) {
-        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page))
+        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page) || "helper".equals(page))
             hubRow(rows, R.drawable.ic_settings, "Back to Other settings", "", this::showOther);
         else hubRow(rows, R.drawable.ic_settings, "Back to settings", "", this::showHub);
     }
@@ -364,11 +364,38 @@ public final class LauncherSettingsActivity extends Activity {
         hubRow(rows,R.drawable.settings_power,"Timed shutdown","Off, 5, 10, 20 minutes or 1 hour",()->SessionSettingsUi.timer(this));
         stockOption(rows, "Restore factory settings", "Warning: a factory reset erases apps, accounts and settings, including CleanYourTV. Opening device controls does not perform a reset. Do not continue unless you intend to erase the projector.", "Other settings");
         hubRow(rows, R.drawable.ic_settings, "Developer mode", "Debugging controls", this::showDeveloper);
-        hubRow(rows,R.drawable.settings_code,"ADB settings helper",SettingsSessionClient.connected()?"Connected for this session":"Not connected",()->SessionSettingsUi.helper(this));
-        if(SessionSettingsUi.starterAvailable(this))hubRow(rows,R.drawable.settings_code,"Settings Starter","Automatic startup & connection status",()->SessionSettingsUi.openStarter(this));
+        hubRow(rows,R.drawable.settings_code,"ADB settings helper",SettingsSessionClient.connected()?"Connected":"Not connected",this::showHelper);
         hubRow(rows, R.drawable.ic_home_settings, "Appearance", "Dock, wallpaper & motion", this::showAppearance);
         hubRow(rows, R.drawable.ic_picture, "Sound", "Volume & audio output", this::showSound);
         hubRow(rows, R.drawable.ic_apps, "Storage & USB", "Space & files", this::showStorage);
+        backRow(rows);
+        focusFirst(rows);
+    }
+
+    /**
+     * The settings helper and Settings Starter on one page: this session's status and its length or stop, then the
+     * companion app that starts the helper after a reboot. The companion stays its own app (it alone holds the
+     * network permission and the pairing identity), so its row opens it rather than reproducing its screens.
+     */
+    private void showHelper() {
+        page = "helper";
+        boolean connected = SettingsSessionClient.connected();
+        LinearLayout rows = pageRows("ADB settings helper", "Run the helper now, or have it start after a reboot.");
+        sectionHeader(rows, "This session");
+        infoRow(rows, "Helper", connected ? "Connected. A reboot, a launcher restart or Stop helper ends it."
+                : "Not connected. Start it from your computer, or use Settings Starter below.");
+        if (connected) {
+            hubRow(rows, R.drawable.settings_code, "Session length and stop", "Change or stop", () ->
+                    SessionSettingsUi.helper(this, () -> scanHandler.postDelayed(() -> {
+                        if ("helper".equals(page) && !isFinishing()) showHelper();
+                    }, 700)));
+        }
+        sectionHeader(rows, "After a reboot");
+        hubRow(rows, R.drawable.settings_code, "Settings Starter",
+                SessionSettingsUi.starterAvailable(this) ? "Start after reboot" : "Not installed", () -> {
+                    returningFromDeviceControls = true;
+                    SessionSettingsUi.openStarter(this);
+                });
         backRow(rows);
         focusFirst(rows);
     }
@@ -785,7 +812,7 @@ public final class LauncherSettingsActivity extends Activity {
         else if ("app".equals(page)) showApps();
         else if ("wifi-networks".equals(page)) showWifi();
         else if ("wifi".equals(page) || "hotspot".equals(page) || "wired".equals(page)) showNetwork();
-        else if ("developer".equals(page) || "appearance".equals(page) || "sound".equals(page) || "storage".equals(page)) showOther();
+        else if ("developer".equals(page) || "appearance".equals(page) || "helper".equals(page) || "sound".equals(page) || "storage".equals(page)) showOther();
         else if (!"hub".equals(page)) showHub();
         else super.onBackPressed();
     }
@@ -1023,6 +1050,7 @@ public final class LauncherSettingsActivity extends Activity {
         else if ("sound".equals(page)) showSound();
         else if ("keyboards".equals(page)) manageKeyboards();
         else if ("storage".equals(page)) showStorage();
+        else if ("helper".equals(page)) showHelper();
         else if ("app".equals(page) && selectedApp != null) showApp(selectedApp);
     }
 

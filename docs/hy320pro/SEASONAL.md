@@ -1,12 +1,21 @@
 # Seasonal themes
 
 Home can dress up for six holidays: **New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween and
-Christmas**. A seasonal skin changes four things, and nothing else: the round pill icons (the network and
-Settings pills get pictures for the holiday, with a short motion when focused), the greeting ("Merry Christmas"), the
-colour of the focus glow, and a short fall of snow, confetti, hearts, shamrocks, blossoms or bats the first time
-Home opens each day. Your wallpaper, dock, apps and layout are left alone, and the Inputs pill keeps its HDMI signal icon, so you can still see at a glance whether a source is connected; the holiday pictures go on the network and Settings pills. With reduced motion on, the icons are
-still and the daily animation is skipped. The pictures are bundled; nothing is downloaded and the launcher gains no
-permission.
+Christmas**. Each one changes:
+
+- **The wallpaper.** A scene for the holiday (a haunted house under a full moon, snowy pines, fireworks over a
+  city, Easter eggs on a hillside, drifting hearts, a rainbow over green hills). The scenes are drawn in code, not
+  stored as pictures, so they add nothing to download and have no licence terms. If you have chosen your own
+  wallpaper, it stays and the scene is not drawn.
+- **The dock.** The band behind your dock apps becomes tinted glass with a rim in the holiday's colour. This goes
+  with the scene, so it also stays as it is when you use your own wallpaper.
+- **The pill icons.** The network and Settings pills get pictures for the holiday, with a short motion when focused.
+  The Inputs pill keeps its HDMI signal icon, so you can still see at a glance whether a source is connected.
+- **The greeting and focus glow** ("Merry Christmas", in the holiday's colour).
+- **A short fall** of snow, confetti, hearts, shamrocks, blossoms or bats the first time Home opens each day.
+
+Your apps and layout are left alone. With reduced motion on, the icons are still and the daily animation is
+skipped. Nothing is downloaded and the launcher gains no permission.
 
 ![Home dressed for Halloween on the HY320 Pro](seasonal-halloween.png)
 

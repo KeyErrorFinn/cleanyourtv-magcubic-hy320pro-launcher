@@ -18,12 +18,15 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     private final float density;
     private final Paint band = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint edge = new Paint(Paint.ANTI_ALIAS_FLAG);
+    /** A dark backing under the glass for a seasonal look, see {@link #tint}. */
+    private final Paint base = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int tint;
     private final RectF rect = new RectF();
 
     /** Extra band below the tiles for their names (always_show_names), in px. */
     private final float namesRoom;
     /** Light glass like the top bar's pills (config.xml dock_glass): a white tint that fades downwards. */
-    private final boolean lightGlass;
+    private boolean lightGlass;
     /** Padding all round the tiles equal to the gap between them (config.xml dock_even_padding). */
     private final boolean evenPadding;
     /** The band's top and bottom the glass gradient was made for; it is remade when they move. */
@@ -55,6 +58,20 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         edge.setStyle(Paint.Style.STROKE);
         edge.setStrokeWidth(density);
         edge.setColor(lightGlass ? 0x38FFFFFF : translucent ? 0x26FFFFFF : 0x1FFFFFFF);
+    }
+
+    /**
+     * A seasonal look: the band becomes glass tinted with {@code accent} over a dark backing, with a rim in the same
+     * colour, so it reads against a scene instead of a plain background.
+     */
+    DockDecoration tint(int accent) {
+        tint = accent;
+        lightGlass = true;
+        shaderTop = Float.NaN;
+        base.setColor(0x80000000);
+        edge.setStrokeWidth(1.5f * density);
+        edge.setColor((accent & 0xFFFFFF) | 0x99000000);
+        return this;
     }
 
     /** Concentric corners: the band's radius is the tiles' radius plus the band's padding around them. */
@@ -136,11 +153,13 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         rect.bottom += namesRoom;
         if (lightGlass && (rect.top != shaderTop || rect.bottom != shaderBottom)) {
             // The pills' glass (pill_bg: white, 18% fading to 8%), a little fainter over this much larger area.
-            band.setShader(new LinearGradient(0, rect.top, 0, rect.bottom, 0x24FFFFFF, 0x0DFFFFFF,
-                    Shader.TileMode.CLAMP));
+            band.setShader(new LinearGradient(0, rect.top, 0, rect.bottom,
+                    tint != 0 ? (tint & 0xFFFFFF) | 0x40000000 : 0x24FFFFFF,
+                    tint != 0 ? (tint & 0xFFFFFF) | 0x14000000 : 0x0DFFFFFF, Shader.TileMode.CLAMP));
             shaderTop = rect.top;
             shaderBottom = rect.bottom;
         }
+        if (tint != 0) c.drawRoundRect(rect, radius, radius, base);
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);
     }

@@ -96,6 +96,9 @@ final class SettingsIcons {
             case "Developer mode":
             case "ADB debug":
             case "Android Developer options":
+            case "ADB settings helper":
+            case "Settings Starter":
+            case "Session length and stop":
                 return R.drawable.settings_code;
             case "USB debug":
             case "Files & USB":

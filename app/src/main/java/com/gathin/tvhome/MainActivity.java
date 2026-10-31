@@ -228,6 +228,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Festive skin from the theme or the seasonal setting (see Festival); applied while it is active today. */
     private Festival festival = Festival.NONE;
     private boolean festive;
+    /** A seasonal scene is drawn behind Home (and the dock is tinted): a skin from the seasonal setting, no wallpaper chosen. */
+    private boolean seasonBackdrop;
     /** The seasonal setting this Home was built with (see Seasonal), to notice a holiday starting or ending. */
     private String seasonalMode = Seasonal.OFF;
     /** The network pill's festive light (the diya, the jack-o'-lantern or a seasonal picture), while a skin is on. */
@@ -462,7 +464,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         getWindow().setBackgroundDrawable(null);
         wallpaperPlayer = new WallpaperPlayer(this, root, cfg);
         sky = findViewById(R.id.sky);
-        sky.setIntensity(cfg.skyIntensity);
+        // A seasonal scene replaces the time-of-day sky and the focused app's glow, which would tint it.
+        seasonBackdrop = festive && festival.season != null && cfg.wallpapers.isEmpty();
+        if (seasonBackdrop) root.addView(new SeasonBackdropView(this, festival.season), 0,
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        sky.setIntensity(seasonBackdrop ? 0 : cfg.skyIntensity);
         glass = findViewById(R.id.glass);
         glass.setStyle(cfg.glassStyle);
         if (festive) glass.setAccent(festival.accentColor());
@@ -470,7 +476,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // The glow is one bitmap, so its alpha can be applied while drawing it. Otherwise every frame of
         // a fade renders it into a full-screen offscreen buffer first.
         ambient.forceHasOverlappingRendering(false);
-        ambientGlow = cfg.ambientGlow;
+        ambientGlow = cfg.ambientGlow && !seasonBackdrop;
         appGlow = cfg.appGlow;
         if (!ambientGlow) ambient.setVisibility(View.GONE);
         heroName = findViewById(R.id.heroName);
@@ -609,8 +615,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             public void onChildViewDetachedFromWindow(@NonNull View v) {
             }
         });
-        if (dockRow) grid.addItemDecoration(new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding,
-                singleRow, cfg.dockBandAll));
+        if (dockRow) {
+            DockDecoration dockBand = new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding,
+                    singleRow, cfg.dockBandAll);
+            if (seasonBackdrop) dockBand.tint(festival.accentColor());
+            grid.addItemDecoration(dockBand);
+        }
         if (cfg.fadeRows) TopFade.attach(grid, 48 * density);
         // Reduced motion: the tiles are simply there, with no entrance (reloadApps skips it there too).
         if (animations && !reducedMotion) {
