@@ -38,7 +38,7 @@ retested as public release builds. See the release validation report for exact c
 
 ## Get started
 
-[Download releases](https://github.com/KeyErrorFinn/hy320pro-launcher/releases) ? [Device guide](docs/device.md) ? [Basic profile](profiles/basic/README.md) ? [Advanced profile](profiles/advanced/README.md)
+[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-hy320pro-launcher/releases) ? [Device guide](docs/device.md) ? [Basic profile](profiles/basic/README.md) ? [Advanced profile](profiles/advanced/README.md)
 
 
 Run commands from the root of this repository. Only the HY320 Pro launcher, its companion and their supporting files are included.
