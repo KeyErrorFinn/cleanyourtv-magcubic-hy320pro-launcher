@@ -58,6 +58,13 @@ A saved Settings choice (Advanced) beats the theme, and the theme beats `config.
 ignored. A festival a theme names itself (`"festival"`, for example Diwali, with its end date) still wins while it
 runs.
 
+## The greeting
+
+Top left, the greeting is themed for the season. On the holiday itself it is the wish: Happy New Year (1 Jan),
+Happy Valentine's Day (14 Feb), Happy St. Patrick's Day (17 Mar), Happy Easter (Easter Sunday), Happy Halloween
+(31 Oct), Merry Christmas (25 Dec). On the other days of the run-up it is one of five lines for that holiday, such
+as "Spooky season" or "Counting down to Christmas", the same one all day.
+
 ## Moving wallpapers
 
 The scenes move: snow falls at Christmas, hearts rise at Valentine's, petals drift at Easter, clovers fall and gold

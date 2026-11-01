@@ -2630,7 +2630,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             else if (hour < 22) res = R.string.good_evening;
             else res = R.string.good_night;
         }
-        String festiveGreeting = festive ? festival.greetingText(getResources()) : "";
+        String festiveGreeting = festive ? festival.greetingText(getResources(), LocalDate.now()) : "";
         if (!festiveGreeting.isEmpty()) {
             greeting.setText(festiveGreeting);
             greeting.setTextColor(liftTowardsWhite(festival.accentColor(), 0.25f));

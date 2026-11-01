@@ -184,4 +184,17 @@ public class SeasonalTest {
     public void everySeasonHasAnOpaqueAccent() {
         for (Season s : Season.values()) assertEquals(0xFF000000, s.accent & 0xFF000000);
     }
+
+    @Test
+    public void theHolidayItselfIsOneDay() {
+        assertTrue(Season.HALLOWEEN.isHoliday(d(2026, 10, 31)));
+        assertFalse(Season.HALLOWEEN.isHoliday(d(2026, 10, 30)));
+        assertTrue(Season.CHRISTMAS.isHoliday(d(2026, 12, 25)));
+        assertFalse(Season.CHRISTMAS.isHoliday(d(2026, 12, 24)));
+        assertTrue(Season.NEW_YEAR.isHoliday(d(2027, 1, 1)));
+        assertTrue(Season.VALENTINES.isHoliday(d(2026, 2, 14)));
+        assertTrue(Season.ST_PATRICKS.isHoliday(d(2026, 3, 17)));
+        assertTrue(Season.EASTER.isHoliday(d(2026, 4, 5)));
+        assertFalse(Season.EASTER.isHoliday(d(2026, 4, 6)));
+    }
 }

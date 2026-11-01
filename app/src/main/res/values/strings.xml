@@ -22,6 +22,48 @@
     <string name="festival_easter_greeting">Happy Easter</string>
     <string name="festival_halloween_greeting">Happy Halloween</string>
     <string name="festival_christmas_greeting">Merry Christmas</string>
+    <string-array name="festival_new_year_lines">
+        <item>New year, new start</item>
+        <item>Here\'s to a great year</item>
+        <item>Cheers to what\'s ahead</item>
+        <item>A fresh year, a fresh page</item>
+        <item>Out with the old</item>
+    </string-array>
+    <string-array name="festival_valentines_lines">
+        <item>Love is in the air</item>
+        <item>Spread a little love</item>
+        <item>Perfect night for a film together</item>
+        <item>Feeling the love</item>
+        <item>Roses are red</item>
+    </string-array>
+    <string-array name="festival_st_patricks_lines">
+        <item>Feeling lucky?</item>
+        <item>The luck of the Irish</item>
+        <item>Wear something green</item>
+        <item>A pot of gold awaits</item>
+        <item>Four-leaf clover weather</item>
+    </string-array>
+    <string-array name="festival_easter_lines">
+        <item>Hop into spring</item>
+        <item>Egg hunt season</item>
+        <item>Spring is in the air</item>
+        <item>Chocolate o\'clock</item>
+        <item>Hoppy days ahead</item>
+    </string-array>
+    <string-array name="festival_halloween_lines">
+        <item>Spooky season</item>
+        <item>Something wicked this way comes</item>
+        <item>Perfect night for a scary film</item>
+        <item>Trick or treat?</item>
+        <item>Don\'t look behind you</item>
+    </string-array>
+    <string-array name="festival_christmas_lines">
+        <item>Cozy holiday season</item>
+        <item>Santa is on his way</item>
+        <item>Perfect night for a holiday film</item>
+        <item>Let it snow</item>
+        <item>Counting down to Christmas</item>
+    </string-array>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>
     <string name="not_available">Not available on this TV</string>

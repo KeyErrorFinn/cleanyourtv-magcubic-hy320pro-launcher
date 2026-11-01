@@ -72,9 +72,38 @@ final class Festival {
         return !name.isEmpty() && (until == null || !today.isAfter(until));
     }
 
+    private static int linesFor(Season season) {
+        switch (season) {
+            case NEW_YEAR:
+                return R.array.festival_new_year_lines;
+            case VALENTINES:
+                return R.array.festival_valentines_lines;
+            case ST_PATRICKS:
+                return R.array.festival_st_patricks_lines;
+            case EASTER:
+                return R.array.festival_easter_lines;
+            case HALLOWEEN:
+                return R.array.festival_halloween_lines;
+            default:
+                return R.array.festival_christmas_lines;
+        }
+    }
+
     /** The greeting to show while active, or "" to keep the normal time-of-day greeting. */
     String greetingText(Resources res) {
+        return greetingText(res, null);
+    }
+
+    /**
+     * Like {@link #greetingText(Resources)}, but a season's skin says its wish ("Happy Halloween") only on the day
+     * itself; on the other days of its run it picks one of its themed lines, the same one all day.
+     */
+    String greetingText(Resources res, LocalDate today) {
         if (!greeting.isEmpty()) return greeting;
+        if (season != null && today != null && !season.isHoliday(today)) {
+            String[] lines = res.getStringArray(linesFor(season));
+            if (lines.length > 0) return lines[Math.floorMod(today.getYear() * 366 + today.getDayOfYear(), lines.length)];
+        }
         if (season != null) {
             switch (season) {
                 case NEW_YEAR:

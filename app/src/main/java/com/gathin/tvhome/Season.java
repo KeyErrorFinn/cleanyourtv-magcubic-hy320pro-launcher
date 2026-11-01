@@ -102,6 +102,24 @@ enum Season {
         return best;
     }
 
+    /** Whether {@code day} is the holiday itself (1 Jan, 14 Feb, 17 Mar, Easter Sunday, 31 Oct, 25 Dec), not just its run-up. */
+    boolean isHoliday(LocalDate day) {
+        switch (this) {
+            case NEW_YEAR:
+                return day.getMonthValue() == 1 && day.getDayOfMonth() == 1;
+            case VALENTINES:
+                return day.getMonthValue() == 2 && day.getDayOfMonth() == 14;
+            case ST_PATRICKS:
+                return day.getMonthValue() == 3 && day.getDayOfMonth() == 17;
+            case EASTER:
+                return day.equals(easterSunday(day.getYear()));
+            case HALLOWEEN:
+                return day.getMonthValue() == 10 && day.getDayOfMonth() == 31;
+            default:
+                return day.getMonthValue() == 12 && day.getDayOfMonth() == 25;
+        }
+    }
+
     /** Easter Sunday in the Gregorian calendar (the Western churches' date), by the Meeus/Jones/Butcher method. */
     static LocalDate easterSunday(int year) {
         int a = year % 19;
