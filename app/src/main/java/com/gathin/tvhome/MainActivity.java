@@ -2662,8 +2662,37 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         weather.setVisibility(line == null ? View.GONE : View.VISIBLE);
     }
 
+    /** Night mode's shade over all of Home: a black layer that is only there between the chosen times. */
+    private View nightShade;
+
+    private void updateNightShade() {
+        boolean on = NightMode.active(this);
+        if (on && nightShade == null) {
+            nightShade = new View(this);
+            nightShade.setFocusable(false);
+            nightShade.setClickable(false);
+            nightShade.setVisibility(View.GONE);
+            root.addView(nightShade, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT));
+        }
+        if (nightShade == null) return;
+        if (on) {
+            nightShade.setBackgroundColor(Color.argb(Math.round(NightMode.dim(this) * 2.55f), 0, 0, 0));
+            nightShade.bringToFront();
+            if (nightShade.getVisibility() != View.VISIBLE) {
+                nightShade.setAlpha(0f);
+                nightShade.setVisibility(View.VISIBLE);
+                nightShade.animate().alpha(1f).setDuration(animations ? 1500 : 0).start();
+            }
+        } else if (nightShade.getVisibility() == View.VISIBLE) {
+            nightShade.animate().cancel();
+            nightShade.setVisibility(View.GONE);
+        }
+    }
+
     private void updateGreeting() {
         updateWeather();
+        updateNightShade();
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int res;
         // Locale-specific day parts (app language on Android 13+).

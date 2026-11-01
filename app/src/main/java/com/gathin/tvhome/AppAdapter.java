@@ -806,7 +806,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // Draw a private copy: changing the bounds of the drawable an ImageView shows would blank the tile.
         Drawable d = live.getConstantState() != null ? live.getConstantState().newDrawable().mutate() : live;
         Rect saved = new Rect(d.getBounds());
-        int n = 12;
+        int n = 24;   // a thin logo (Netflix's N on black) still has to land on a few samples
         Bitmap bmp = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
         d.setBounds(0, 0, n, n);

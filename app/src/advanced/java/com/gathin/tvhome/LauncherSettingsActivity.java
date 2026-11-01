@@ -30,15 +30,13 @@ public final class LauncherSettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        if (!Firmware.verified(android.os.Build.ID)
-                || android.os.Build.VERSION.SDK_INT != 34
-                || !"rk3566_rgo".equals(android.os.Build.DEVICE)
-                || !"exdroid".equals(android.os.Build.BOARD)) {
-            Toast.makeText(this, "Integrated settings require the verified HY320 Pro firmware.", Toast.LENGTH_LONG).show();
-            try { startActivity(SystemSettings.intent(this, Settings.ACTION_SETTINGS)); }
-            catch (RuntimeException unavailable) { /* Home remains accessible. */ }
-            finish(); return;
-        }
+        choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);   // pages reached by search skip showAppearance
+        // An unverified firmware no longer locks the whole app out: the pages that only change launcher choices work
+        // anywhere, and the projector-specific ones switch themselves off with a note (see projectorVerified).
+        projectorVerified = Firmware.verified(android.os.Build.ID)
+                && android.os.Build.VERSION.SDK_INT == 34
+                && "rk3566_rgo".equals(android.os.Build.DEVICE)
+                && "exdroid".equals(android.os.Build.BOARD);
 
         if ("network".equals(getIntent().getStringExtra("settings_page"))) showNetwork();
         else showHub();
@@ -140,6 +138,33 @@ public final class LauncherSettingsActivity extends Activity {
             choose("Clock screensaver", idleLabels, checkedIdle,
                     which -> save(editor -> editor.putInt(Config.IDLE_CLOCK_KEY, IDLE_CLOCK_MINUTES[which])));
         });
+        int nightMode = NightMode.mode(this);
+        String[] nightModes = {"Off", "On a schedule", "Always"};
+        hubRow(rows, R.drawable.settings_eye, "Night mode", nightModes[nightMode] + (nightMode == NightMode.OFF ? "" : ", dims Home"),
+                () -> choose("Night mode", nightModes, nightMode, which -> save(editor -> editor.putInt(NightMode.MODE_KEY, which))));
+        if (nightMode != NightMode.OFF) {
+            boolean h24 = android.text.format.DateFormat.is24HourFormat(this);
+            String[] times = new String[48];
+            for (int i = 0; i < times.length; i++) times[i] = QuietHours.clock(i * 30, h24);
+            if (nightMode == NightMode.SCHEDULED) {
+                hubRow(rows, R.drawable.settings_clock, "Night starts", QuietHours.clock(NightMode.start(this), h24),
+                        () -> choose("Night starts", times, Math.min(47, NightMode.start(this) / 30),
+                                which -> save(editor -> editor.putInt(NightMode.START_KEY, which * 30))));
+                hubRow(rows, R.drawable.settings_clock, "Night ends", QuietHours.clock(NightMode.end(this), h24),
+                        () -> choose("Night ends", times, Math.min(47, NightMode.end(this) / 30),
+                                which -> save(editor -> editor.putInt(NightMode.END_KEY, which * 30))));
+            }
+            String[] dims = new String[NightMode.DIM_LEVELS.length];
+            int dimChecked = 0;
+            for (int i = 0; i < dims.length; i++) {
+                dims[i] = NightMode.DIM_LEVELS[i] + "% darker";
+                if (NightMode.DIM_LEVELS[i] <= NightMode.dim(this)) dimChecked = i;
+            }
+            final int checkedDim = dimChecked;
+            hubRow(rows, R.drawable.settings_eye, "Night dimming", dims[checkedDim],
+                    () -> choose("Night dimming", dims, checkedDim,
+                            which -> save(editor -> editor.putInt(NightMode.DIM_KEY, NightMode.DIM_LEVELS[which]))));
+        }
         if (config.openOnStartChoice) {
             hubRow(rows, R.drawable.ic_home_settings, "Open on start", openOnStartLabel(), this::showOpenOnStartPicker);
         }
@@ -175,7 +200,8 @@ public final class LauncherSettingsActivity extends Activity {
             save(editor -> editor.remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
                     .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
                     .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Seasonal.KEY)
-                    .remove(Seasonal.ANIMATE_KEY).remove(Config.IDLE_CLOCK_KEY).remove(WeatherWidget.KEY));
+                    .remove(Seasonal.ANIMATE_KEY).remove(Config.IDLE_CLOCK_KEY).remove(WeatherWidget.KEY).remove(NightMode.MODE_KEY).remove(NightMode.START_KEY)
+                    .remove(NightMode.END_KEY).remove(NightMode.DIM_KEY));
         });
         hubRow(rows, R.drawable.ic_home_settings, "Choose default home", "Android setting", () -> {
             Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
@@ -253,7 +279,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private void backRow(LinearLayout rows) {
-        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page) || "helper".equals(page))
+        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page) || "helper".equals(page) || "backup".equals(page))
             hubRow(rows, R.drawable.ic_settings, "Back to Other settings", "", this::showOther);
         else hubRow(rows, R.drawable.ic_settings, "Back to settings", "", this::showHub);
     }
@@ -302,10 +328,20 @@ public final class LauncherSettingsActivity extends Activity {
         return SystemSettings.intent(this, Settings.ACTION_SETTINGS);
     }
 
+    /** True on a firmware the projector controls were run on (Firmware.VERIFIED); false switches them off. */
+    private boolean projectorVerified = true;
+
+    private void notVerifiedNote() {
+        Toast.makeText(this, "Projector controls are off: this firmware has not been verified with them.", Toast.LENGTH_LONG).show();
+    }
+
     private void showHub() {
         page = "hub";
-        LinearLayout rows = pageRows("Settings", "Projector settings.");
-        hubRow(rows, R.drawable.ic_picture, "Projection settings", "Focus, keystone & scaling", this::showProjector);
+        LinearLayout rows = pageRows("Settings", projectorVerified ? "Projector settings."
+                : "Projector controls are off on this firmware (" + android.os.Build.ID + ").");
+        hubRow(rows, R.drawable.ic_settings, "Search settings", "Find any setting", this::showSearch);
+        if (projectorVerified) hubRow(rows, R.drawable.ic_picture, "Projection settings", "Focus, keystone & scaling", this::showProjector);
+        else hubRow(rows, R.drawable.ic_picture, "Projection settings", "Not verified on this firmware", this::notVerifiedNote);
         hubRow(rows, R.drawable.ic_wifi, "Network settings", networkName(), this::showNetwork);
         hubRow(rows, R.drawable.ic_settings, "Bluetooth", "Audio & accessories", this::showBluetooth);
         hubRow(rows, R.drawable.ic_apps, "Application Manager", "Installed applications", this::showApps);
@@ -398,6 +434,7 @@ public final class LauncherSettingsActivity extends Activity {
         hubRow(rows, R.drawable.ic_home_settings, "Appearance", "Dock, wallpaper & motion", this::showAppearance);
         hubRow(rows, R.drawable.ic_picture, "Sound", "Volume & audio output", this::showSound);
         hubRow(rows, R.drawable.ic_apps, "Storage & USB", "Space & files", this::showStorage);
+        hubRow(rows, R.drawable.ic_apps, "Backup & restore", "Save or restore your look", this::showBackup);
         backRow(rows);
         focusFirst(rows);
     }
@@ -842,6 +879,8 @@ public final class LauncherSettingsActivity extends Activity {
         else if ("app".equals(page)) showApps();
         else if ("wifi-networks".equals(page)) showWifi();
         else if ("wifi".equals(page) || "hotspot".equals(page) || "wired".equals(page)) showNetwork();
+        else if ("quiet".equals(page)) showSound();
+        else if ("backup".equals(page)) showOther();
         else if ("developer".equals(page) || "appearance".equals(page) || "helper".equals(page) || "sound".equals(page) || "storage".equals(page)) showOther();
         else if (!"hub".equals(page)) showHub();
         else super.onBackPressed();
@@ -1188,7 +1227,178 @@ public final class LauncherSettingsActivity extends Activity {
         slider.requestFocus();
     }
 
+    // ---- backup and restore ------------------------------------------------------------------------
+
+    private void showBackup() {
+        page = "backup";
+        LinearLayout rows = pageRows("Backup & restore", "Saves your theme, dock, night mode, quiet hours and the other choices made here to one small file.");
+        hubRow(rows, R.drawable.ic_apps, "Back up now", "Save a copy", () -> {
+            try {
+                Toast.makeText(this, "Saved to " + LookBackup.save(this), Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Could not save the backup: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        hubRow(rows, R.drawable.ic_apps, "Restore from backup", LookBackup.read(this) == null ? "No backup found" : "Replace the current look", () -> {
+            String text = LookBackup.read(this);
+            if (text == null) {
+                Toast.makeText(this, "No backup found. Back up first, or put " + LookBackup.FILE_NAME + " in Downloads.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            styleDialog(new SettingsPopup.Builder(this).setTitle("Restore from backup")
+                    .setMessage("This replaces your current look (theme, dock, night mode, quiet hours and the other choices) with the saved one. Projector settings are not touched.")
+                    .setPositiveButton("Restore", (d, w) -> {
+                        int n = LookBackup.restore(this, text);
+                        if (n < 0) {
+                            Toast.makeText(this, "That file is not a CleanYourTV backup.", Toast.LENGTH_LONG).show();
+                        } else {
+                            changed();
+                            QuietHoursService.sync(this);
+                            Toast.makeText(this, "Restored " + n + " choices.", Toast.LENGTH_LONG).show();
+                        }
+                        showBackup();
+                    })
+                    .setNegativeButton(android.R.string.cancel, null).create());
+        });
+        backRow(rows);
+        focusFirst(rows);
+    }
+
+    // ---- search ------------------------------------------------------------------------------------
+
+    private static final class Entry {
+        final String title, words;
+        final Runnable open;
+        Entry(String title, String words, Runnable open) { this.title = title; this.words = words; this.open = open; }
+    }
+
+    /** Every page and the settings worth finding by name, with extra words people would type for them. */
+    private java.util.List<Entry> searchIndex() {
+        java.util.List<Entry> e = new java.util.ArrayList<>();
+        Runnable projector = projectorVerified ? this::showProjector : this::notVerifiedNote;
+        e.add(new Entry("Projection settings", "projector focus keystone scaling picture", projector));
+        e.add(new Entry("Installation mode", "front rear ceiling table projection orientation flip", projector));
+        e.add(new Entry("Digital scaling", "zoom size picture fit", projector));
+        e.add(new Entry("Auto focus", "focus sharp blur", projector));
+        e.add(new Entry("Keystone / trapezoidal", "trapezoid corners correction skew straighten", projector));
+        e.add(new Entry("Network settings", "internet connection online", this::showNetwork));
+        e.add(new Entry("Wi-Fi", "wireless network password", this::showWifi));
+        e.add(new Entry("Hotspot", "share connection tether", this::showHotspot));
+        e.add(new Entry("Wired network", "ethernet cable lan", this::showWired));
+        e.add(new Entry("Bluetooth", "pair remote headphones speaker accessories", this::showBluetooth));
+        e.add(new Entry("Application Manager", "apps installed uninstall permissions clear cache", this::showApps));
+        e.add(new Entry("Language and keyboard", "language input keyboard text", this::showLanguage));
+        e.add(new Entry("Date and time", "clock time zone 24-hour format", this::showDateTime));
+        e.add(new Entry("Other settings", "preferences customisation", this::showOther));
+        e.add(new Entry("Screen saver", "sleep screen off timeout", this::showOther));
+        e.add(new Entry("Timed shutdown", "sleep timer power off", this::showOther));
+        e.add(new Entry("Developer mode", "adb debugging usb", this::showDeveloper));
+        e.add(new Entry("ADB settings helper", "helper starter adb reboot", this::showHelper));
+        e.add(new Entry("Appearance", "dock wallpaper theme look motion", this::showAppearance));
+        e.add(new Entry("Wallpaper", "background picture", this::showWallpaperPicker));
+        e.add(new Entry("Seasonal themes", "holiday christmas halloween easter valentine new year", this::showSeasonalPicker));
+        e.add(new Entry("Night mode", "dim dark evening bedtime brightness", this::showAppearance));
+        e.add(new Entry("Weather on Home", "forecast temperature widget", this::showAppearance));
+        e.add(new Entry("Clock screensaver", "idle clock", this::showAppearance));
+        e.add(new Entry("Animations", "motion effects", this::showAppearance));
+        e.add(new Entry("Sound", "volume audio speaker output mute", this::showSound));
+        e.add(new Entry("Quiet hours", "volume cap night loud limit schedule", this::showQuietHours));
+        e.add(new Entry("Storage & USB", "space files drive memory", this::showStorage));
+        e.add(new Entry("Backup & restore", "save export import look settings copy", this::showBackup));
+        e.add(new Entry("System information", "about device version firmware updates", this::showAbout));
+        return e;
+    }
+
+    private void showSearch() {
+        page = "search";
+        LinearLayout rows = pageRows("Search settings", "Type a word, such as volume, wifi or dim.");
+        android.widget.EditText field = new android.widget.EditText(this);
+        field.setSingleLine(true);
+        field.setHint("Search");
+        field.setTextColor(0xFFF5F5FA);
+        field.setHintTextColor(0xFF8A8A94);
+        field.setTextSize(20);
+        field.setTypeface(getResources().getFont(R.font.outfit_regular));
+        field.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
+        // The focused row turns light, so the typed text must turn dark with it.
+        field.setOnFocusChangeListener((v, focused) -> {
+            field.setTextColor(focused ? 0xFF111114 : 0xFFF5F5FA);
+            field.setHintTextColor(focused ? 0xFF55555E : 0xFF8A8A94);
+        });
+        field.setBackgroundResource(R.drawable.settings_preview_row);
+        field.setPadding(dp(20), dp(14), dp(20), dp(14));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+        lp.bottomMargin = dp(8);
+        rows.addView(field, lp);
+        java.util.List<Entry> index = searchIndex();
+        Runnable refresh = () -> {
+            while (rows.getChildCount() > 1) rows.removeViewAt(1);
+            String query = field.getText().toString().trim().toLowerCase(java.util.Locale.ROOT);
+            int shown = 0;
+            for (Entry entry : index) {
+                boolean match = true;
+                String haystack = (entry.title + " " + entry.words).toLowerCase(java.util.Locale.ROOT);
+                for (String word : query.split("\\s+")) {
+                    if (!word.isEmpty() && !haystack.contains(word)) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (!match) continue;
+                hubRow(rows, SettingsIcons.forLabel(entry.title, R.drawable.ic_settings), entry.title, "", entry.open);
+                if (++shown >= 12) break;
+            }
+            if (shown == 0) infoRow(rows, "No match", "Try another word.");
+        };
+        field.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
+            @Override public void onTextChanged(CharSequence s, int a, int b, int c) { refresh.run(); }
+            @Override public void afterTextChanged(android.text.Editable s) { }
+        });
+        refresh.run();
+        field.requestFocus();
+    }
+
+    /**
+     * Up from the first row goes to the last, and Down from the last goes to the first, so a long page can be
+     * crossed either way. Only on the settings pages' own list; dialogs are other windows.
+     */
+    private boolean wrapFocus(android.view.KeyEvent event) {
+        int key = event.getKeyCode();
+        if (event.getAction() != android.view.KeyEvent.ACTION_DOWN
+                || (key != android.view.KeyEvent.KEYCODE_DPAD_UP && key != android.view.KeyEvent.KEYCODE_DPAD_DOWN)) {
+            return false;
+        }
+        LinearLayout rows = findViewById(R.id.settingsHubRows);
+        View focus = getCurrentFocus();
+        if (rows == null || focus == null) return false;
+        View row = focus;
+        while (row.getParent() != null && row.getParent() != rows) {
+            if (!(row.getParent() instanceof View)) return false;
+            row = (View) row.getParent();
+        }
+        if (row.getParent() != rows) return false;
+        int first = -1, last = -1;
+        for (int i = 0; i < rows.getChildCount(); i++) {
+            if (rows.getChildAt(i).isFocusable()) {
+                if (first < 0) first = i;
+                last = i;
+            }
+        }
+        int at = rows.indexOfChild(row);
+        if (key == android.view.KeyEvent.KEYCODE_DPAD_UP && at == first && last > first) {
+            rows.getChildAt(last).requestFocus();
+            return true;
+        }
+        if (key == android.view.KeyEvent.KEYCODE_DPAD_DOWN && at == last && last > first) {
+            rows.getChildAt(first).requestFocus();
+            return true;
+        }
+        return false;
+    }
+
     @Override public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        if (wrapFocus(event)) return true;
         boolean handled = super.dispatchKeyEvent(event);
         int key = event.getKeyCode();
         if ("sound".equals(page) && event.getAction() == android.view.KeyEvent.ACTION_UP
@@ -1382,6 +1592,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private void showProjector() {
+        if (!projectorVerified) { notVerifiedNote(); return; }
         page = "projector";
         LinearLayout rows = pageRows("Projection settings", "Make the picture fit your space.");
 
@@ -1673,7 +1884,7 @@ public final class LauncherSettingsActivity extends Activity {
                 || choices.contains(Config.WALLPAPER_CHOICE_KEY) || choices.contains(Config.DOCK_OPACITY_KEY)
                 || choices.contains(OpenOnStart.KEY) || choices.contains(Seasonal.KEY)
                 || choices.contains(Seasonal.ANIMATE_KEY) || choices.contains(Config.IDLE_CLOCK_KEY)
-                || choices.contains(WeatherWidget.KEY);
+                || choices.contains(WeatherWidget.KEY) || choices.contains(NightMode.MODE_KEY);
     }
 
     private void open(Intent intent) {

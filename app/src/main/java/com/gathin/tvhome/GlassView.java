@@ -58,6 +58,7 @@ public class GlassView extends View {
                     b = ((glowRgb & 0xFF) + 255 * 2) / 3;
             rim.setColor(0xE6000000 | (r << 16) | (g << 8) | b);
         }
+        buildShaders();
         invalidate();
     }
 
@@ -103,8 +104,25 @@ public class GlassView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        fill.setShader(new LinearGradient(0, 0, 0, h, 0x3DFFFFFF, 0x12FFFFFF, Shader.TileMode.CLAMP));
-        specular.setShader(new LinearGradient(0, 0, 0, h * 0.45f, 0x66FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+        buildShaders();
+    }
+
+    /**
+     * The slab's sheen and specular, in the accent lifted towards white rather than plain white: a white sheen turns
+     * a dark icon (Netflix's black tile) flat grey, while the app's own colour keeps it that app's colour.
+     */
+    private void buildShaders() {
+        int h = getHeight();
+        if (h <= 0) return;
+        int rgb = glowRgb == 0xFFFFFF ? 0xFFFFFF : lift(glowRgb);
+        fill.setShader(new LinearGradient(0, 0, 0, h, 0x3D000000 | rgb, 0x12000000 | rgb, Shader.TileMode.CLAMP));
+        specular.setShader(new LinearGradient(0, 0, 0, h * 0.45f, 0x66000000 | rgb, 0x00000000 | rgb, Shader.TileMode.CLAMP));
+    }
+
+    /** A colour a third of the way to white. */
+    private static int lift(int rgb) {
+        int r = (((rgb >> 16) & 0xFF) * 2 + 255) / 3, g = (((rgb >> 8) & 0xFF) * 2 + 255) / 3, b = ((rgb & 0xFF) * 2 + 255) / 3;
+        return (r << 16) | (g << 8) | b;
     }
 
     @Override
