@@ -12,7 +12,7 @@ public final class RestoreLanguageActivity extends Activity {
         message.setTextColor(0xfff5f5fa);message.setBackgroundColor(0xff101216);message.setTextSize(24);
         message.setGravity(android.view.Gravity.CENTER);message.setTypeface(UiFont.get(this,R.string.font_regular));setContentView(message);
         String tags=getIntent().getStringExtra("com.gathin.tvhome.RESTORE_LANGUAGES");
-        if(!"Projector_20260713.153921".equals(android.os.Build.ID)||android.os.Build.VERSION.SDK_INT!=34||tags==null){finish();return;}
+        if(!Firmware.verified(android.os.Build.ID)||android.os.Build.VERSION.SDK_INT!=34||tags==null){finish();return;}
         new Thread(()->{
             String result;
             try {

@@ -16,7 +16,7 @@ final class MirrorReceipt {
         if (readFailure != null) throw new IllegalStateException("Mirror raw=" + rawCode + "; readback failed", readFailure);
         int bits = OrientationMath.nativeBits(logicalMode);
         if (rawCode != -1 || command != OrientationMath.nativeCommand(logicalMode, true, true)
-                || !"Projector_20260713.153921".equals(firmware)
+                || !Firmware.verified(firmware)
                 || before == null || after == null || originalField == null
                 || before.path != MirrorField.Path.OEM || !before.same(originalField)
                 || !after.same(before.mode(bits)) || nativeGetter != bits)

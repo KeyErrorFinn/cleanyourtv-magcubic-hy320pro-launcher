@@ -8,7 +8,7 @@ final class DriverKeystoneState {
     private static boolean loaded;
     private static native int[] nativeRead();
     static synchronized int[] read() throws IOException {
-        if (!"Projector_20260713.153921".equals(android.os.Build.ID)
+        if (!Firmware.verified(android.os.Build.ID)
                 || android.os.Build.VERSION.SDK_INT != 34 || android.os.Process.is64Bit()
                 || android.os.Process.myUid() / 100000 != 0 || android.os.Process.myUid() % 100000 < 10000)
             throw new IOException("Reviewed ordinary-app ARM32 identity required");

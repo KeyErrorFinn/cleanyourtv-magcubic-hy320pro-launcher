@@ -10,7 +10,7 @@ import android.net.Uri;
 public final class ProjectionRecoveryProvider extends ContentProvider {
     @Override public boolean onCreate(){return true;}
     @Override public Cursor query(Uri uri,String[] projection,String selection,String[] args,String sort){
-        if(!"/status".equals(uri.getPath())||!"Projector_20260713.153921".equals(android.os.Build.ID)||android.os.Process.myUid()/100000!=0)
+        if(!"/status".equals(uri.getPath())||!Firmware.verified(android.os.Build.ID)||android.os.Process.myUid()/100000!=0)
             throw new IllegalArgumentException("Reviewed projector status endpoint required");
         MatrixCursor result=new MatrixCursor(new String[]{"orientation_pending","manual_pending","reset_pending","scaling_pending","automatic_pending","busy"});
         java.io.File files=getContext().getFilesDir();result.addRow(new Object[]{new OrientationJournal(files).exists()?1:0,

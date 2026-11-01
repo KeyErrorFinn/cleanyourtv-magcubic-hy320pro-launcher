@@ -9,7 +9,7 @@ public final class SettingsSessionProvider extends ContentProvider {
   });return true;
  }
  @Override public Bundle call(String method,String arg,Bundle extras){
-  if(Binder.getCallingUid()!=2000||!"Projector_20260713.153921".equals(Build.ID)||android.os.Process.myUid()/100000!=0)throw new SecurityException("Authorised projector shell required");
+  if(Binder.getCallingUid()!=2000||!Firmware.verified(Build.ID)||android.os.Process.myUid()/100000!=0)throw new SecurityException("Authorised projector shell required");
   Bundle out=new Bundle();try{
    if("attach".equals(method)){if(extras==null)throw new IllegalArgumentException("Missing helper");SettingsSessionClient.attach(extras.getBinder("service"));boolean independent=StarterStatusProvider.HANDSHAKE.attached(extras.getString("starter_nonce"),SystemClock.elapsedRealtime());SettingsSessionClient.independentOfDebugging(independent);out.putBoolean("independent",independent);out.putBoolean("accepted",true);out.putBinder("owner",ownerLease);}
    else if("session_mode".equals(method)){out.putBoolean("until_debug_off",getContext().getSharedPreferences("settings_helper_policy",0).getBoolean("until_debug_off",false));}

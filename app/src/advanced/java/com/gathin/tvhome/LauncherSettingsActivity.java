@@ -30,7 +30,7 @@ public final class LauncherSettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        if (!"Projector_20260713.153921".equals(android.os.Build.ID)
+        if (!Firmware.verified(android.os.Build.ID)
                 || android.os.Build.VERSION.SDK_INT != 34
                 || !"rk3566_rgo".equals(android.os.Build.DEVICE)
                 || !"exdroid".equals(android.os.Build.BOARD)) {
@@ -1284,7 +1284,7 @@ public final class LauncherSettingsActivity extends Activity {
                     .setPositiveButton("Apply", (d, which) -> {
                         if (choice[0] >= 0) saveAutomaticTime(key, current, choice[0] == 1, false);
                     }).setNegativeButton(android.R.string.cancel, null);
-            if (key == AutomaticTimeControl.Key.ZONE && "Projector_20260713.153921".equals(android.os.Build.ID)) {
+            if (key == AutomaticTimeControl.Key.ZONE && Firmware.verified(android.os.Build.ID)) {
                 // Verified from this firmware's detector capabilities, not inferred from Wi-Fi or model name.
                 TextView note = new TextView(this);
                 note.setText("Automatic time-zone detection is unavailable on this projector.");

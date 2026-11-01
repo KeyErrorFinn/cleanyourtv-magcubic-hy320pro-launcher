@@ -76,7 +76,7 @@ final class OrientationPilot {
             }
             for (String guard : guards) if (guard == null || guard.isEmpty())
                 throw new IllegalArgumentException("Required guard absent");
-            if (!"Projector_20260713.153921".equals(guard(Guard.BUILD)) || !"34".equals(guard(Guard.SDK))
+            if (!Firmware.verified(guard(Guard.BUILD)) || !"34".equals(guard(Guard.SDK))
                     || !"optics".equals(guard(Guard.OPTICS)) || !"1920x1080".equals(guard(Guard.RASTER)))
                 throw new IllegalArgumentException("Unreviewed firmware/optics/raster");
             for (Guard g : new Guard[] {Guard.AUTO, Guard.XCRT, Guard.RECOGNIZE, Guard.OBSTACLE})

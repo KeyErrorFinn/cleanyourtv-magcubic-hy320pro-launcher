@@ -144,7 +144,7 @@ public final class ShellSettingsSession extends Binder {
   if(!done.await(20,TimeUnit.SECONDS))throw new IllegalStateException("No completion response. Check app storage before retrying.");if(!success[0])throw new IllegalStateException("Android did not confirm completion.");
  }
  public static void main(String[] args)throws Exception{
-  if(android.os.Process.myUid()!=2000||Build.VERSION.SDK_INT!=34||!"Projector_20260713.153921".equals(Build.ID))throw new SecurityException("Reviewed projector shell required");
+  if(android.os.Process.myUid()!=2000||Build.VERSION.SDK_INT!=34||!Firmware.verified(Build.ID))throw new SecurityException("Reviewed projector shell required");
   String starterNonce=null;if(args.length!=0){if(args.length!=2||!"--starter-nonce".equals(args[0])||!StarterHandshake.valid(args[1]))throw new IllegalArgumentException("Invalid starter arguments");starterNonce=args[1];}
   if(Looper.getMainLooper()==null)Looper.prepareMainLooper();Class<?> at=Class.forName("android.app.ActivityThread");Object thread=at.getMethod("systemMain").invoke(null);Context system=(Context)at.getMethod("getSystemContext").invoke(thread),base=system.createPackageContext("com.android.shell",0);
   Context c=new ContextWrapper(base){@Override public String getPackageName(){return "com.android.shell";}@Override public String getOpPackageName(){return "com.android.shell";}@Override public Context getApplicationContext(){return this;}@Override public AttributionSource getAttributionSource(){return new AttributionSource.Builder(2000).setPackageName("com.android.shell").build();}};

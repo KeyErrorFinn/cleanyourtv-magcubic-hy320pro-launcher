@@ -19,7 +19,7 @@ final class BluetoothAudioSession implements AutoCloseable {
     private volatile BluetoothProfile profile;private volatile boolean closed;
     private boolean registered;private final Method connect,disconnect,remove,acl;
     BluetoothAudioSession(Context context,Runnable changed){
-        if(!"Projector_20260713.153921".equals(android.os.Build.ID)||android.os.Build.VERSION.SDK_INT!=34||android.os.Process.myUid()/100000!=0)throw new IllegalStateException("Reviewed projector firmware/user required");
+        if(!Firmware.verified(android.os.Build.ID)||android.os.Build.VERSION.SDK_INT!=34||android.os.Process.myUid()/100000!=0)throw new IllegalStateException("Reviewed projector firmware/user required");
         this.context=context.getApplicationContext();this.changed=changed;
         BluetoothManager manager=(BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);adapter=manager==null?null:manager.getAdapter();
         connect=method(BluetoothA2dp.class,"connect",BluetoothDevice.class);disconnect=method(BluetoothA2dp.class,"disconnect",BluetoothDevice.class);

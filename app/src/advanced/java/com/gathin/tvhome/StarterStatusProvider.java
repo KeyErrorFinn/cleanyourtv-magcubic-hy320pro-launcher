@@ -19,7 +19,7 @@ public final class StarterStatusProvider extends ContentProvider {
     @Override public boolean onCreate() { return true; }
 
     private void caller() {
-        if (!"Projector_20260713.153921".equals(Build.ID) || Build.VERSION.SDK_INT != 34)
+        if (!Firmware.verified(Build.ID) || Build.VERSION.SDK_INT != 34)
             throw new SecurityException("Reviewed projector required");
         try {
             PackageManager pm = getContext().getPackageManager();

@@ -9,7 +9,7 @@ final class ProjectorUsbRole {
     private static final String KEY = "persist.sys.usb0device";
     private final Method get, set;
     ProjectorUsbRole() throws Exception {
-        if (!"Projector_20260713.153921".equals(android.os.Build.ID) || android.os.Build.VERSION.SDK_INT != 34
+        if (!Firmware.verified(android.os.Build.ID) || android.os.Build.VERSION.SDK_INT != 34
                 || android.os.Process.myUid() / 100000 != 0)
             throw new IllegalStateException("Unreviewed projector firmware/user");
         Class<?> properties = Class.forName("android.os.SystemProperties");

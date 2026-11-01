@@ -34,7 +34,7 @@ final class ProjectorAutoFocus {
     private static final class PropertyStore implements Store {
         private final Method get,set;
         PropertyStore() throws Exception {
-            if(!"Projector_20260713.153921".equals(android.os.Build.ID) || android.os.Build.VERSION.SDK_INT!=34
+            if(!Firmware.verified(android.os.Build.ID) || android.os.Build.VERSION.SDK_INT!=34
                     || android.os.Process.myUid()/100000!=0)throw new IllegalStateException("Unreviewed projector firmware/user");
             Class<?> properties=Class.forName("android.os.SystemProperties");
             get=properties.getMethod("get",String.class,String.class);

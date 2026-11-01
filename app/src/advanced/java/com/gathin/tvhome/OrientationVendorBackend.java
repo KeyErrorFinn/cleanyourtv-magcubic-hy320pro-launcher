@@ -22,7 +22,7 @@ final class OrientationVendorBackend implements OrientationPilot.Backend {
     private Object display, tv;
 
     @Override public void resolve() throws Exception {
-        if (!"Projector_20260713.153921".equals(android.os.Build.ID)
+        if (!Firmware.verified(android.os.Build.ID)
                 || android.os.Build.VERSION.SDK_INT != 34 || android.os.Process.myUid() / 100000 != 0
                 || android.os.Process.myUid() % 100000 < 10000)
             throw new IllegalStateException("Reviewed ordinary user0 firmware identity required");
