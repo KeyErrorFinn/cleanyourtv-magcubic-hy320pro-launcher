@@ -28,6 +28,11 @@
         <item>Cheers to what\'s ahead</item>
         <item>A fresh year, a fresh page</item>
         <item>Out with the old</item>
+        <item>Make it a good one</item>
+        <item>Resolutions, anyone?</item>
+        <item>Fresh start, fresh watchlist</item>
+        <item>Another lap around the sun</item>
+        <item>Time to start something new</item>
     </string-array>
     <string-array name="festival_valentines_lines">
         <item>Love is in the air</item>
@@ -35,6 +40,11 @@
         <item>Perfect night for a film together</item>
         <item>Feeling the love</item>
         <item>Roses are red</item>
+        <item>Cuddle up and press play</item>
+        <item>Date night, sorted</item>
+        <item>Hearts everywhere</item>
+        <item>Be my player one</item>
+        <item>Something sweet to watch</item>
     </string-array>
     <string-array name="festival_st_patricks_lines">
         <item>Feeling lucky?</item>
@@ -42,6 +52,11 @@
         <item>Wear something green</item>
         <item>A pot of gold awaits</item>
         <item>Four-leaf clover weather</item>
+        <item>Go green tonight</item>
+        <item>Rainbow, then gold</item>
+        <item>Shamrocks and snacks</item>
+        <item>Top o\' the evening</item>
+        <item>Find your lucky show</item>
     </string-array>
     <string-array name="festival_easter_lines">
         <item>Hop into spring</item>
@@ -49,6 +64,11 @@
         <item>Spring is in the air</item>
         <item>Chocolate o\'clock</item>
         <item>Hoppy days ahead</item>
+        <item>Hunt for the golden egg</item>
+        <item>Bunny business tonight</item>
+        <item>Fresh flowers, fresh start</item>
+        <item>Basket full of ideas</item>
+        <item>Sunny spring days</item>
     </string-array>
     <string-array name="festival_halloween_lines">
         <item>Spooky season</item>
@@ -56,6 +76,11 @@
         <item>Perfect night for a scary film</item>
         <item>Trick or treat?</item>
         <item>Don\'t look behind you</item>
+        <item>Boo! Did I scare you?</item>
+        <item>Carve a pumpkin tonight</item>
+        <item>Lights low, volume up</item>
+        <item>Ghosts about tonight</item>
+        <item>Candy on standby</item>
     </string-array>
     <string-array name="festival_christmas_lines">
         <item>Cozy holiday season</item>
@@ -63,6 +88,11 @@
         <item>Perfect night for a holiday film</item>
         <item>Let it snow</item>
         <item>Counting down to Christmas</item>
+        <item>Hot chocolate weather</item>
+        <item>Wrap up warm</item>
+        <item>Jingle all the way</item>
+        <item>Tis the season</item>
+        <item>Snow globe evening</item>
     </string-array>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>

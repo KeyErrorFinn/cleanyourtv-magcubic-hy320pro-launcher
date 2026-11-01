@@ -63,7 +63,7 @@ runs.
 Top left, the greeting is themed for the season. On the holiday itself it is the wish: Happy New Year (1 Jan),
 Happy Valentine's Day (14 Feb), Happy St. Patrick's Day (17 Mar), Happy Easter (Easter Sunday), Happy Halloween
 (31 Oct), Merry Christmas (25 Dec). On the other days of the run-up it is one of five lines for that holiday, such
-as "Spooky season" or "Counting down to Christmas", the same one all day.
+as "Spooky season" or "Counting down to Christmas", with a new one every few hours.
 
 ## Moving wallpapers
 

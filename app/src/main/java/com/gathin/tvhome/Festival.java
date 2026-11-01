@@ -96,13 +96,13 @@ final class Festival {
 
     /**
      * Like {@link #greetingText(Resources)}, but a season's skin says its wish ("Happy Halloween") only on the day
-     * itself; on the other days of its run it picks one of its themed lines, the same one all day.
+     * itself; on the other days of its run it picks one of its themed lines, which changes every few hours.
      */
     String greetingText(Resources res, LocalDate today) {
         if (!greeting.isEmpty()) return greeting;
         if (season != null && today != null && !season.isHoliday(today)) {
             String[] lines = res.getStringArray(linesFor(season));
-            if (lines.length > 0) return lines[Math.floorMod(today.getYear() * 366 + today.getDayOfYear(), lines.length)];
+            if (lines.length > 0) return lines[Math.floorMod((today.getYear() * 366 + today.getDayOfYear()) * 8 + java.time.LocalTime.now().getHour() / 3, lines.length)];
         }
         if (season != null) {
             switch (season) {

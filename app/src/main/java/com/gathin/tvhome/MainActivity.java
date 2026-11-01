@@ -45,6 +45,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.SpannableString;
@@ -365,6 +366,46 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             updateClockVisibility();
         }
     };
+    /** The screen went off and has not been touched since: the OK that wakes it must not open the focused tile. */
+    private boolean screenWasOff;
+    private long screenOnAt;
+    private boolean swallowingSelect;
+    private boolean screenReceiverRegistered;
+    private final BroadcastReceiver screenReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                screenWasOff = true;
+                screenOnAt = 0;
+            } else if (screenWasOff) {
+                screenOnAt = SystemClock.uptimeMillis();
+            }
+        }
+    };
+
+    /** True for the select key that wakes the screen (and for its release), so the screen comes on and nothing opens. */
+    private boolean isWakeSelect(KeyEvent event) {
+        int code = event.getKeyCode();
+        if (code != KeyEvent.KEYCODE_DPAD_CENTER && code != KeyEvent.KEYCODE_ENTER
+                && code != KeyEvent.KEYCODE_NUMPAD_ENTER) {
+            return false;
+        }
+        if (event.getAction() != KeyEvent.ACTION_DOWN) {
+            boolean was = swallowingSelect;
+            swallowingSelect = false;
+            return was;
+        }
+        if (swallowingSelect) return true;
+        if (screenWasOff && screenOnAt != 0 && SystemClock.uptimeMillis() - screenOnAt >= 1500) screenWasOff = false;
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        boolean asleep = pm != null && !pm.isInteractive();
+        if (asleep || screenWasOff) {
+            swallowingSelect = true;
+            if (!asleep && screenOnAt != 0) screenWasOff = false;
+            return true;
+        }
+        return false;
+    }
     private final Runnable minuteTick = new Runnable() {
         @Override
         public void run() {
@@ -992,6 +1033,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (waitingForUnlock) return;
         stopped = false;
         started = true;
+        if (!screenReceiverRegistered) {
+            IntentFilter screenFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+            screenFilter.addAction(Intent.ACTION_SCREEN_ON);
+            registerReceiver(screenReceiver, screenFilter);
+            screenReceiverRegistered = true;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(timeReceiver, timeFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
@@ -1287,6 +1334,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (screenReceiverRegistered) {
+            unregisterReceiver(screenReceiver);
+            screenReceiverRegistered = false;
+        }
         if (waitingForUnlock) {
             if (unlockReceiver != null) unregisterReceiver(unlockReceiver);
             return;
@@ -1343,6 +1394,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (waitingForUnlock) return super.dispatchKeyEvent(event);
+        if (isWakeSelect(event)) return true;
         if (handleSettingsKey(event)) return true;
         if (tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null
                 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
