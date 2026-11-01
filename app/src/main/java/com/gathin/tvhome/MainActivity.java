@@ -1033,6 +1033,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (waitingForUnlock) return;
         stopped = false;
         started = true;
+        QuietHoursService.sync(this);
         if (!screenReceiverRegistered) {
             IntentFilter screenFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
             screenFilter.addAction(Intent.ACTION_SCREEN_ON);
@@ -2658,7 +2659,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
+    /** The Weather add-on's last reading under the date; hidden when it is off, not installed or too old. */
+    private void updateWeather() {
+        TextView weather = findViewById(R.id.weather);
+        if (weather == null) return;
+        String line = WeatherWidget.read(this);
+        weather.setText(line == null ? "" : line);
+        weather.setVisibility(line == null ? View.GONE : View.VISIBLE);
+    }
+
     private void updateGreeting() {
+        updateWeather();
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int res;
         // Locale-specific day parts (app language on Android 13+).

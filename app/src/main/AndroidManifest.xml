@@ -7,6 +7,9 @@
 
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Quiet hours: one foreground service, only while the owner has switched quiet hours on. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:ignore="CoarseFineLocation" />
@@ -17,6 +20,8 @@
 
     <queries>
         <package android:name="local.hy320.helperstarter" />
+        <!-- The Weather add-on's read-only provider, for the Home weather widget. -->
+        <provider android:authorities="io.github.sumyabazar1.weather.provider" />
         <intent>
             <action android:name="android.intent.action.DELETE" />
             <data android:scheme="package" />
@@ -122,6 +127,10 @@
 
         <activity android:name=".ProbeActivity" android:exported="false" android:excludeFromRecents="true" android:noHistory="true" android:taskAffinity="" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+
+        <service android:name=".QuietHoursService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Keeps the media volume under a cap the owner chose for quiet hours" />
+        </service>
 
         <service android:name=".ClockDream" android:label="@string/dream_name" android:exported="true" android:permission="android.permission.BIND_DREAM_SERVICE">
             <intent-filter>

@@ -126,6 +126,9 @@ public final class LauncherSettingsActivity extends Activity {
         boolean seasonAnimated = Seasonal.animated(this);
         hubRow(rows, R.drawable.settings_sliders, "Wallpaper animation", getString(seasonAnimated ? R.string.on : R.string.off),
                 () -> save(editor -> editor.putBoolean(Seasonal.ANIMATE_KEY, !seasonAnimated)));
+        boolean weatherOn = WeatherWidget.enabled(this);
+        hubRow(rows, R.drawable.ic_apps, "Weather on Home", weatherOn ? "On, needs the Weather add-on" : "Off",
+                () -> save(editor -> editor.putBoolean(WeatherWidget.KEY, !weatherOn)));
         int idle = config.homeIdleClockMinutes;
         hubRow(rows, R.drawable.settings_clock, "Clock screensaver", idle == 0 ? "Off" : "After " + idle + (idle == 1 ? " minute" : " minutes"), () -> {
             int checkedIdle = 0;
@@ -172,7 +175,7 @@ public final class LauncherSettingsActivity extends Activity {
             save(editor -> editor.remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
                     .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
                     .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Seasonal.KEY)
-                    .remove(Seasonal.ANIMATE_KEY).remove(Config.IDLE_CLOCK_KEY));
+                    .remove(Seasonal.ANIMATE_KEY).remove(Config.IDLE_CLOCK_KEY).remove(WeatherWidget.KEY));
         });
         hubRow(rows, R.drawable.ic_home_settings, "Choose default home", "Android setting", () -> {
             Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
@@ -1102,9 +1105,56 @@ public final class LauncherSettingsActivity extends Activity {
         }
         infoRow(rows, "Available outputs", audioOutputs());
         hubRow(rows, R.drawable.ic_settings, "Bluetooth audio", "Speakers & headphones", this::showBluetooth);
+        hubRow(rows, R.drawable.settings_volume, "Quiet hours", quietSummary(QuietHours.load(this)), this::showQuietHours);
         // Volume, mute and output status are already provided on this local page.
         backRow(rows);
         rows.getChildAt(rows.getChildCount() - 1).requestFocus();
+    }
+
+    private static final String[] QUIET_MODES = {"Off", "On a schedule", "Always"};
+
+    private String quietSummary(QuietHours q) {
+        if (q.mode == QuietHours.OFF) return "Off";
+        boolean h24 = android.text.format.DateFormat.is24HourFormat(this);
+        String cap = "Up to " + q.cap + "%";
+        return q.mode == QuietHours.ALWAYS ? cap + ", all day"
+                : cap + ", " + QuietHours.clock(q.start, h24) + " to " + QuietHours.clock(q.end, h24);
+    }
+
+    /** Cap the volume at night (or always): the choices are the launcher's own, and a small service enforces them. */
+    private void showQuietHours() {
+        page = "quiet";
+        QuietHours q = QuietHours.load(this);
+        boolean h24 = android.text.format.DateFormat.is24HourFormat(this);
+        LinearLayout rows = pageRows("Quiet hours", "Keeps the TV's volume under a cap, so a late night or an ad never wakes the house.");
+        android.media.AudioManager audio = audio();
+        if (audio != null && audio.isVolumeFixed()) {
+            infoRow(rows, "Volume is fixed", "HDMI ARC or an amplifier sets it, so the TV can't cap it");
+        }
+        hubRow(rows, R.drawable.settings_volume, "Quiet hours", QUIET_MODES[q.mode],
+                () -> choose("Quiet hours", QUIET_MODES, q.mode, which -> quietSave(m -> m.mode = which)));
+        String[] caps = new String[20];
+        for (int i = 0; i < caps.length; i++) caps[i] = (5 * (i + 1)) + "%";
+        hubRow(rows, R.drawable.settings_volume, "Volume cap", q.cap + "%",
+                () -> choose("Volume cap", caps, q.cap / 5 - 1, which -> quietSave(m -> m.cap = 5 * (which + 1))));
+        String[] times = new String[48];
+        for (int i = 0; i < times.length; i++) times[i] = QuietHours.clock(i * 30, h24);
+        hubRow(rows, R.drawable.settings_clock, "Starts", QuietHours.clock(q.start, h24),
+                () -> choose("Starts", times, Math.min(47, q.start / 30), which -> quietSave(m -> m.start = which * 30)));
+        hubRow(rows, R.drawable.settings_clock, "Ends", QuietHours.clock(q.end, h24),
+                () -> choose("Ends", times, Math.min(47, q.end / 30), which -> quietSave(m -> m.end = which * 30)));
+        hubRow(rows, R.drawable.ic_settings, "Headphones", q.headphonesFree ? "Not capped" : "Capped too",
+                () -> quietSave(m -> m.headphonesFree = !m.headphonesFree));
+        hubRow(rows, R.drawable.ic_settings, "Back to Sound", "", this::showSound);
+        focusFirst(rows);
+    }
+
+    private void quietSave(java.util.function.Consumer<QuietHours> change) {
+        QuietHours q = QuietHours.load(this);
+        change.accept(q);
+        q.save(this);
+        QuietHoursService.sync(this);
+        showQuietHours();
     }
 
     private void showVolumePicker() {
@@ -1622,7 +1672,8 @@ public final class LauncherSettingsActivity extends Activity {
                 || choices.contains("animations") || choices.contains("advanced_effects")
                 || choices.contains(Config.WALLPAPER_CHOICE_KEY) || choices.contains(Config.DOCK_OPACITY_KEY)
                 || choices.contains(OpenOnStart.KEY) || choices.contains(Seasonal.KEY)
-                || choices.contains(Seasonal.ANIMATE_KEY) || choices.contains(Config.IDLE_CLOCK_KEY);
+                || choices.contains(Seasonal.ANIMATE_KEY) || choices.contains(Config.IDLE_CLOCK_KEY)
+                || choices.contains(WeatherWidget.KEY);
     }
 
     private void open(Intent intent) {
