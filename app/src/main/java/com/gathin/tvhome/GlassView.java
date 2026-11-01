@@ -52,7 +52,7 @@ public class GlassView extends View {
             rim.setColor(0xCCFFFFFF);
         } else {
             glowRgb = argb & 0xFFFFFF;
-            glowAlpha = 0xB8;
+            glowAlpha = 0x90;
             // The rim is the accent lifted towards white, so the edge still reads as glass, not paint.
             int r = (((glowRgb >> 16) & 0xFF) + 255 * 2) / 3, g = (((glowRgb >> 8) & 0xFF) + 255 * 2) / 3,
                     b = ((glowRgb & 0xFF) + 255 * 2) / 3;
@@ -76,7 +76,7 @@ public class GlassView extends View {
         accentAnimation.setDuration(300);
         accentAnimation.addUpdateListener(a -> {
             setAccent((int) a.getAnimatedValue());
-            if (argb == 0) glowAlpha = 0xB8 - Math.round((0xB8 - 0x30) * a.getAnimatedFraction());
+            if (argb == 0) glowAlpha = 0x90 - Math.round((0x90 - 0x30) * a.getAnimatedFraction());
         });
         accentAnimation.addListener(new android.animation.AnimatorListenerAdapter() {
             @Override

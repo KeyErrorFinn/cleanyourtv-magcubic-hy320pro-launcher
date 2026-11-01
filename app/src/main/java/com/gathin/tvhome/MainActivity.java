@@ -2005,26 +2005,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 boolean rtl = getResources().getBoolean(R.bool.rtl_menu_bar);
                 paint.setShader(new RadialGradient(
                         w * (rtl ? 0.20f : 0.80f), h * 0.06f, w * 0.78f,
-                        new int[]{0xD9FFFFFF, 0x80FFFFFF, 0x00FFFFFF},
+                        new int[]{0xBFFFFFFF, 0x5AFFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.5f, 1f},
                         Shader.TileMode.CLAMP));
             } else if (Config.GLOW_HORIZON.equals(glowStyle)) {
                 // The colour washes down from the top edge and fades out three quarters of the way down,
                 // with a brighter band along the top like light over a horizon.
                 paint.setShader(new LinearGradient(0, 0, 0, h * 0.75f,
-                        new int[]{0xB3FFFFFF, 0x66FFFFFF, 0x00FFFFFF},
+                        new int[]{0x80FFFFFF, 0x38FFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.4f, 1f},
                         Shader.TileMode.CLAMP));
                 canvas.drawRect(0, 0, w, h, paint);
                 paint.setShader(new RadialGradient(
                         w * 0.5f, -h * 0.25f, w * 0.55f,
-                        new int[]{0x80FFFFFF, 0x00FFFFFF},
+                        new int[]{0x52FFFFFF, 0x00FFFFFF},
                         null,
                         Shader.TileMode.CLAMP));
             } else {
                 paint.setShader(new RadialGradient(
                         w * 0.32f, h * 0.42f, w * 0.62f,
-                        new int[]{0xD6FFFFFF, 0x80FFFFFF, 0x00FFFFFF},
+                        new int[]{0x78FFFFFF, 0x38FFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.45f, 1f},
                         Shader.TileMode.CLAMP));
             }
@@ -2041,8 +2041,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static int vivid(int color) {
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
-        if (hsv[1] > 0.12f) hsv[1] = Math.min(1f, hsv[1] * 1.25f + 0.1f);
-        hsv[2] = Math.max(hsv[2], 0.92f);
+        if (hsv[1] > 0.12f) hsv[1] = Math.min(1f, hsv[1] * 1.1f + 0.05f);
+        hsv[2] = Math.max(hsv[2], 0.85f);
         return Color.HSVToColor(hsv);
     }
 
