@@ -22,6 +22,8 @@ import java.util.List;
 /** Remote-friendly settings owned by the launcher; system settings stay one row away. */
 public final class LauncherSettingsActivity extends Activity {
     static final String EXTRA_REORDER = "com.gathin.tvhome.extra.REORDER_FROM_SETTINGS";
+    /** Answered by the Widgets row: Home opens its list of module cards (add-on widgets such as Weather). */
+    static final String EXTRA_CARDS = "com.gathin.tvhome.extra.CARDS_FROM_SETTINGS";
     private SharedPreferences choices;
     private final TextView[] columnChoices = new TextView[4];
     private final TextView[] rowChoices = new TextView[4];

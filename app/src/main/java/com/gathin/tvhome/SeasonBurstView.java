@@ -215,7 +215,7 @@ public final class SeasonBurstView extends View {
     }
 
     /** A heart about one unit wide, centred on the origin. */
-    private static Path heartShape() {
+    static Path heartShape() {
         Path p = new Path();
         p.moveTo(0f, 0.42f);
         p.cubicTo(-0.62f, 0.02f, -0.52f, -0.46f, 0f, -0.16f);
@@ -225,7 +225,7 @@ public final class SeasonBurstView extends View {
     }
 
     /** A four-leaf shamrock: four round lobes and a short stem. */
-    private static Path cloverShape() {
+    static Path cloverShape() {
         Path p = new Path();
         p.addCircle(-0.2f, -0.2f, 0.21f, Path.Direction.CW);
         p.addCircle(0.2f, -0.2f, 0.21f, Path.Direction.CW);
@@ -236,7 +236,7 @@ public final class SeasonBurstView extends View {
     }
 
     /** Five rounded petals around the origin. */
-    private static Path petalsShape() {
+    static Path petalsShape() {
         Path p = new Path();
         Path one = new Path();
         one.addOval(new RectF(-0.15f, -0.5f, 0.15f, -0.02f), Path.Direction.CW);

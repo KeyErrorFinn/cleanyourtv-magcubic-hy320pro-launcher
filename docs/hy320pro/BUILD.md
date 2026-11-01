@@ -24,7 +24,7 @@ Remove-Item Env:CYTV_STORE_PASSWORD, Env:CYTV_KEY_PASSWORD
 ```
 
 Use `--edition basic` or `--edition advanced` to build one. Both launchers intentionally share package
-`com.gathin.tvhome` and version code 110 so a same-signed edition switch can be a normal update, after
+`com.gathin.tvhome` and version code 120 so a same-signed edition switch can be a normal update, after
 stopping/turning off the helper. They cannot be installed side by side. Starter package:
 `local.hy320.helperstarter`. Keep both apps on the same signing key.
 

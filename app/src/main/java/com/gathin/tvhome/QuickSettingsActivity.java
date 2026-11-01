@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * The panel the remote's Settings button opens when {@code settings_key_panel} is on (HomeKeyService):
+ * The panel a held Settings pill or remote Settings button opens (and a tap of the button, when {@code settings_key_panel} is on):
  * a few glass rows under the Settings pill, over Home or whatever app is playing. Translucent and in a
  * task of its own, so the app behind keeps running and Back returns to it. Pressing Settings again
  * closes the panel.
@@ -33,6 +33,8 @@ public final class QuickSettingsActivity extends Activity {
         // Through Home, so it rebuilds with the new choices when Launcher settings closes.
         addRow(rows, R.drawable.ic_home_settings, R.string.launcher_settings, 0,
                 new Intent(this, MainActivity.class).setAction(MainActivity.ACTION_LAUNCHER_SETTINGS));
+        addRow(rows, R.drawable.ic_apps, R.string.home_options, 0,
+                new Intent(this, MainActivity.class).setAction(MainActivity.ACTION_HOME_OPTIONS));
         rows.getChildAt(0).requestFocus();
     }
 

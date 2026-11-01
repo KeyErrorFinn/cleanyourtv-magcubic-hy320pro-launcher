@@ -99,6 +99,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static final int LAUNCHER_SETTINGS_REQUEST = 42;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     static final String ACTION_LAUNCHER_SETTINGS = "com.gathin.tvhome.action.LAUNCHER_SETTINGS";
+    /** Sent by QuickSettingsActivity: show the Home options menu (reorder, dock, module cards) under the gear. */
+    static final String ACTION_HOME_OPTIONS = "com.gathin.tvhome.action.HOME_OPTIONS";
     /** The system input switcher, forwarded here by InputsRequestActivity while handle_view_inputs is on. */
     static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
@@ -468,6 +470,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         seasonBackdrop = festive && festival.season != null && cfg.wallpapers.isEmpty();
         if (seasonBackdrop) root.addView(new SeasonBackdropView(this, festival.season), 0,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // Moving snow, hearts, fireworks and the rest, unless Settings or the Animations switch turned motion off.
+        if (seasonBackdrop && cfg.animations && !cfg.reducedMotion && Seasonal.animated(this)) {
+            root.addView(new SeasonMotionView(this, festival.season), 1,
+                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
         sky.setIntensity(seasonBackdrop ? 0 : cfg.skyIntensity);
         glass = findViewById(R.id.glass);
         glass.setStyle(cfg.glassStyle);
@@ -806,8 +813,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (iconOnlyButtons)
             installExpandingShortcut((TextView) btnSettings, () -> getString(R.string.settings));
         btnInputs.setOnFocusChangeListener((view, focused) -> updateHdmiShortcutWidth());
+        // Hold: the quick settings panel; its last row opens the Home options this used to show.
         btnSettings.setOnLongClickListener(v -> {
-            showSettingsMenu();
+            open(new Intent(this, QuickSettingsActivity.class));
             return true;
         });
 
@@ -939,6 +947,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return true;
     }
 
+    private boolean openHomeOptionsIfAsked(Intent intent) {
+        if (intent == null || !ACTION_HOME_OPTIONS.equals(intent.getAction())) return false;
+        setIntent(new Intent(Intent.ACTION_MAIN));
+        root.post(this::showSettingsMenu);
+        return true;
+    }
+
     private boolean openLauncherSettingsIfAsked(Intent intent) {
         if (intent == null || !ACTION_LAUNCHER_SETTINGS.equals(intent.getAction())) return false;
         setIntent(new Intent(Intent.ACTION_MAIN));
@@ -956,6 +971,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onNewIntent(intent);
         if (waitingForUnlock) { setIntent(intent); return; }
         if (openLauncherSettingsIfAsked(intent)) return;
+        if (openHomeOptionsIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
         grid.scrollToPosition(0);
@@ -1065,6 +1081,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             settingsRecreationPending = true;
             settingsRevision = settingsRevision();
             recreate();
+        } else if (requestCode == LAUNCHER_SETTINGS_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getBooleanExtra(LauncherSettingsActivity.EXTRA_CARDS, false)) {
+            root.postDelayed(this::showModuleCards, 500);
         }
     }
 
@@ -1292,7 +1311,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean handleSettingsKey(KeyEvent event) {
         for (int code : settingsKeycodes) {
             if (event.getKeyCode() != code) continue;
-            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                settingsKeyHeld = false;
+            } else if (event.getAction() == KeyEvent.ACTION_DOWN && event.isLongPress() && !settingsKeyHeld) {
+                settingsKeyHeld = true;
+                if (!settingsKeyPanel) open(new Intent(this, QuickSettingsActivity.class));
+            } else if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled() && !settingsKeyHeld) {
                 open(settingsKeyPanel ? new Intent(this, QuickSettingsActivity.class)
                         : systemIntent(Settings.ACTION_SETTINGS));
             }
@@ -1300,6 +1324,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         return false;
     }
+
+    /** The remote's Settings button has been held long enough for the quick panel; its release then does nothing. */
+    private boolean settingsKeyHeld;
 
     // ---- reorder ---------------------------------------------------------------------------------
 

@@ -58,6 +58,23 @@ A saved Settings choice (Advanced) beats the theme, and the theme beats `config.
 ignored. A festival a theme names itself (`"festival"`, for example Diwali, with its end date) still wins while it
 runs.
 
+## Moving wallpapers
+
+The scenes move: snow falls at Christmas, hearts rise at Valentine's, petals drift at Easter, clovers fall and gold
+sparkles at St. Patrick's, embers rise and bats cross the sky at Halloween, and fireworks burst at New Year.
+**Appearance, Wallpaper animation** turns the movement off; it is on by default. The movement also stops when
+**Animations** is off, and the still scene stays. It draws about 30 frames a second, only while Home is on screen.
+
+## Other Home options added with the holiday themes
+
+- **Hold the Settings pill** (or hold the remote's Settings button, when its keycode is set) to open the quick
+  settings panel; its last row, **Home options**, opens the old menu (reorder, dock, widgets).
+- **Appearance, Clock screensaver** sets how long Home may sit idle before the clock appears (Off, 1 to 30 minutes).
+  It is the same switch as `home_idle_clock_minutes` in a theme.
+- **Appearance, Widgets** lists the add-on cards installed on the projector (Weather, Quiet Hours and the other
+  [add-ons](https://github.com/Gathin23/cleanyourtv/tree/main/addons)); answer Show once to put one on Home.
+  Module cards are on in this build; they were off by default upstream.
+
 ## Dates in Automatic mode
 
 | Holiday | Shows | Names for `config.xml` and themes |

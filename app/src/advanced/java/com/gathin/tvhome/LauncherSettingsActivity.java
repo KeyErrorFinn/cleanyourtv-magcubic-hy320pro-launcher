@@ -22,6 +22,8 @@ import java.util.List;
 /** Remote-friendly settings owned by the launcher; system settings stay one row away. */
 public final class LauncherSettingsActivity extends Activity {
     static final String EXTRA_REORDER = "com.gathin.tvhome.extra.REORDER_FROM_SETTINGS";
+    /** Answered by the Widgets row: Home opens its list of module cards (add-on widgets such as Weather). */
+    static final String EXTRA_CARDS = "com.gathin.tvhome.extra.CARDS_FROM_SETTINGS";
     private SharedPreferences choices;
     private static final int[] DOCK_OPACITIES = {100, 70, 50, 30};
 
@@ -108,12 +110,33 @@ public final class LauncherSettingsActivity extends Activity {
                 "Dock band opacity", opacityLabels, checkedOpacity,
                 which -> save(editor -> editor.putInt(Config.DOCK_OPACITY_KEY, DOCK_OPACITIES[which]))));
 
+        if (config.moduleCards) {
+            hubRow(rows, R.drawable.ic_apps, "Widgets", "Weather and other add-ons", () -> {
+                setResult(RESULT_OK, new Intent().putExtra(EXTRA_CARDS, true));
+                finish();
+            });
+        }
+
         sectionHeader(rows, "Look");
         String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
         hubRow(rows, R.drawable.ic_picture, "Wallpaper", "none".equals(wallpaperCurrent) ? getString(R.string.wallpaper_none)
                 : wallpaperCurrent != null ? wallpaperCurrent : getString(R.string.wallpaper_theme_default),
                 this::showWallpaperPicker);
         hubRow(rows, R.drawable.settings_calendar, "Seasonal themes", seasonalStatus(), this::showSeasonalPicker);
+        boolean seasonAnimated = Seasonal.animated(this);
+        hubRow(rows, R.drawable.settings_sliders, "Wallpaper animation", getString(seasonAnimated ? R.string.on : R.string.off),
+                () -> save(editor -> editor.putBoolean(Seasonal.ANIMATE_KEY, !seasonAnimated)));
+        int idle = config.homeIdleClockMinutes;
+        hubRow(rows, R.drawable.settings_clock, "Clock screensaver", idle == 0 ? "Off" : "After " + idle + (idle == 1 ? " minute" : " minutes"), () -> {
+            int checkedIdle = 0;
+            String[] idleLabels = new String[IDLE_CLOCK_MINUTES.length];
+            for (int i = 0; i < IDLE_CLOCK_MINUTES.length; i++) {
+                idleLabels[i] = IDLE_CLOCK_MINUTES[i] == 0 ? "Off" : IDLE_CLOCK_MINUTES[i] + (IDLE_CLOCK_MINUTES[i] == 1 ? " minute" : " minutes");
+                if (IDLE_CLOCK_MINUTES[i] == idle) checkedIdle = i;
+            }
+            choose("Clock screensaver", idleLabels, checkedIdle,
+                    which -> save(editor -> editor.putInt(Config.IDLE_CLOCK_KEY, IDLE_CLOCK_MINUTES[which])));
+        });
         if (config.openOnStartChoice) {
             hubRow(rows, R.drawable.ic_home_settings, "Open on start", openOnStartLabel(), this::showOpenOnStartPicker);
         }
@@ -148,7 +171,8 @@ public final class LauncherSettingsActivity extends Activity {
             }
             save(editor -> editor.remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
                     .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
-                    .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Seasonal.KEY));
+                    .remove(Config.DOCK_OPACITY_KEY).remove(OpenOnStart.KEY).remove(Seasonal.KEY)
+                    .remove(Seasonal.ANIMATE_KEY).remove(Config.IDLE_CLOCK_KEY));
         });
         hubRow(rows, R.drawable.ic_home_settings, "Choose default home", "Android setting", () -> {
             Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
@@ -159,6 +183,9 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     /** A small caption above a group of rows, in the style of the "CLEANYOURTV" label on every page. */
+    /** The waits offered for the clock screensaver, in minutes; 0 is off. */
+    private static final int[] IDLE_CLOCK_MINUTES = {0, 1, 2, 5, 10, 15, 30};
+
     private void sectionHeader(LinearLayout rows, String text) {
         TextView header = new TextView(this);
         header.setText(text.toUpperCase(java.util.Locale.ROOT));
@@ -1594,7 +1621,8 @@ public final class LauncherSettingsActivity extends Activity {
         return choices.contains("columns") || choices.contains(Config.ROWS_BELOW_DOCK_KEY)
                 || choices.contains("animations") || choices.contains("advanced_effects")
                 || choices.contains(Config.WALLPAPER_CHOICE_KEY) || choices.contains(Config.DOCK_OPACITY_KEY)
-                || choices.contains(OpenOnStart.KEY) || choices.contains(Seasonal.KEY);
+                || choices.contains(OpenOnStart.KEY) || choices.contains(Seasonal.KEY)
+                || choices.contains(Seasonal.ANIMATE_KEY) || choices.contains(Config.IDLE_CLOCK_KEY);
     }
 
     private void open(Intent intent) {

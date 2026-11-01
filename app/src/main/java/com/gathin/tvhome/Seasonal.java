@@ -18,6 +18,8 @@ final class Seasonal {
     static final String AUTO = "auto";
     /** The saved choice in {@link Config#SETTINGS_NAME}; absent means "use the edition's default". */
     static final String KEY = "seasonal_mode";
+    /** Settings' switch for the wallpaper's movement (Advanced edition); on unless it was turned off. */
+    static final String ANIMATE_KEY = "seasonal_animate";
 
     private Seasonal() {
     }
@@ -68,6 +70,12 @@ final class Seasonal {
         if (m.equals(OFF)) return null;
         if (m.equals(AUTO)) return Season.on(today);
         return Season.fromId(m);
+    }
+
+    /** Whether the seasonal wallpaper moves: on by default, off once Settings turned it off. */
+    static boolean animated(Context ctx) {
+        if (!BuildConfig.ADVANCED_SETTINGS) return true;
+        return ctx.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE).getBoolean(ANIMATE_KEY, true);
     }
 
     /** The saved choice from Settings (Advanced edition), or "" when none was made or this is the Basic edition. */
