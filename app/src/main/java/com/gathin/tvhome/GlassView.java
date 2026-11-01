@@ -52,13 +52,39 @@ public class GlassView extends View {
             rim.setColor(0xCCFFFFFF);
         } else {
             glowRgb = argb & 0xFFFFFF;
-            glowAlpha = 0x70;
+            glowAlpha = 0xB8;
             // The rim is the accent lifted towards white, so the edge still reads as glass, not paint.
             int r = (((glowRgb >> 16) & 0xFF) + 255 * 2) / 3, g = (((glowRgb >> 8) & 0xFF) + 255 * 2) / 3,
                     b = ((glowRgb & 0xFF) + 255 * 2) / 3;
             rim.setColor(0xE6000000 | (r << 16) | (g << 8) | b);
         }
         invalidate();
+    }
+
+    private android.animation.ValueAnimator accentAnimation;
+
+    /** Like {@link #setAccent}, but slides from the colour now showing to the new one instead of jumping. */
+    void animateAccent(int argb) {
+        if (accentAnimation != null) accentAnimation.cancel();
+        int from = 0xFF000000 | glowRgb;
+        int to = argb == 0 ? 0xFFFFFFFF : 0xFF000000 | argb;
+        if (from == to) {
+            setAccent(argb);
+            return;
+        }
+        accentAnimation = android.animation.ValueAnimator.ofObject(new android.animation.ArgbEvaluator(), from, to);
+        accentAnimation.setDuration(300);
+        accentAnimation.addUpdateListener(a -> {
+            setAccent((int) a.getAnimatedValue());
+            if (argb == 0) glowAlpha = 0xB8 - Math.round((0xB8 - 0x30) * a.getAnimatedFraction());
+        });
+        accentAnimation.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                if (argb == 0) setAccent(0);
+            }
+        });
+        accentAnimation.start();
     }
 
     /** One of Config's GLASS_* styles. */

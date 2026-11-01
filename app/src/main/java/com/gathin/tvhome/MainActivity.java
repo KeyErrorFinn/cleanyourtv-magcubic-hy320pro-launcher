@@ -1738,7 +1738,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int accent = coloured ? adapter.ambientColorAt(position) : 0;
         if ((cinematic || appGlow) && !festive && accent != glassAccent) {
             glassAccent = accent;
-            glass.setAccent(accent);
+            if (animations && !reducedMotion && glassShown) glass.animateAccent(accent);
+            else glass.setAccent(accent);
         }
         if (!glassShown) {
             springX.cancel();
@@ -1844,14 +1845,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 hero.setTranslationX(12 * density);
                 hero.animate().alpha(1f).translationX(0f).setDuration(200).start();
             }).start();
-            if (ambientGlow && advancedEffects) {
-                transitionAmbient(color);
-            } else if (ambientGlow && color != ambientColor) {
-                ambient.animate().alpha(0.35f).setDuration(200).withEndAction(() -> {
-                    setAmbient(color);
-                    ambient.animate().alpha(1f).setDuration(500).start();
-                }).start();
-            }
+            if (ambientGlow) transitionAmbient(color);
         } else {
             hero.setY(y);
         }
@@ -2011,26 +2005,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 boolean rtl = getResources().getBoolean(R.bool.rtl_menu_bar);
                 paint.setShader(new RadialGradient(
                         w * (rtl ? 0.20f : 0.80f), h * 0.06f, w * 0.78f,
-                        new int[]{0xA6FFFFFF, 0x47FFFFFF, 0x00FFFFFF},
+                        new int[]{0xD9FFFFFF, 0x80FFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.5f, 1f},
                         Shader.TileMode.CLAMP));
             } else if (Config.GLOW_HORIZON.equals(glowStyle)) {
                 // The colour washes down from the top edge and fades out three quarters of the way down,
                 // with a brighter band along the top like light over a horizon.
                 paint.setShader(new LinearGradient(0, 0, 0, h * 0.75f,
-                        new int[]{0x66FFFFFF, 0x24FFFFFF, 0x00FFFFFF},
+                        new int[]{0xB3FFFFFF, 0x66FFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.4f, 1f},
                         Shader.TileMode.CLAMP));
                 canvas.drawRect(0, 0, w, h, paint);
                 paint.setShader(new RadialGradient(
                         w * 0.5f, -h * 0.25f, w * 0.55f,
-                        new int[]{0x40FFFFFF, 0x00FFFFFF},
+                        new int[]{0x80FFFFFF, 0x00FFFFFF},
                         null,
                         Shader.TileMode.CLAMP));
             } else {
                 paint.setShader(new RadialGradient(
                         w * 0.32f, h * 0.42f, w * 0.62f,
-                        new int[]{0x5CFFFFFF, 0x26FFFFFF, 0x00FFFFFF},
+                        new int[]{0xD6FFFFFF, 0x80FFFFFF, 0x00FFFFFF},
                         new float[]{0f, 0.45f, 1f},
                         Shader.TileMode.CLAMP));
             }
@@ -2040,7 +2034,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             ambient.setBackground(glow);
         }
         // The default tint mode, SRC_IN, keeps the mask's alpha and takes the colour from the tint.
-        glow.setTint(0xFF000000 | color);
+        glow.setTint(0xFF000000 | vivid(color));
+    }
+
+    /** The glow's colour made bolder: more saturated and never dim, so it reads clearly against the dark background. */
+    private static int vivid(int color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        if (hsv[1] > 0.12f) hsv[1] = Math.min(1f, hsv[1] * 1.25f + 0.1f);
+        hsv[2] = Math.max(hsv[2], 0.92f);
+        return Color.HSVToColor(hsv);
     }
 
     private void transitionAmbient(int color) {
@@ -2053,7 +2056,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         ambient.animate().alpha(1f).setDuration(180).start();
         ambientAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), ambientColor, color);
-        ambientAnimator.setDuration(360);
+        ambientAnimator.setDuration(420);
         ambientAnimator.addUpdateListener(animation -> setAmbient((int) animation.getAnimatedValue()));
         ambientAnimator.start();
     }
@@ -2088,11 +2091,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             ambient.animate().alpha(1f).setDuration(300).start();
             return;
         }
-        // The same dip-and-swap as the dock's top shelf.
-        ambient.animate().alpha(0.35f).setDuration(ambient.getAlpha() > 0.35f ? 200 : 0).withEndAction(() -> {
+        if (ambient.getBackground() == null || ambient.getAlpha() < 0.05f) {
             setAmbient(color);
             ambient.animate().alpha(1f).setDuration(500).start();
-        }).start();
+        } else {
+            transitionAmbient(color);
+        }
     }
 
     private void hideHero() {
