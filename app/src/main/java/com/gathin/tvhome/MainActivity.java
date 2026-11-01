@@ -1397,16 +1397,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (waitingForUnlock) return super.dispatchKeyEvent(event);
         if (isWakeSelect(event)) return true;
         if (handleSettingsKey(event)) return true;
-        if (tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null
-                && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
-            int position = focusedTilePosition();
-            if (position >= 0 && position < adapter.appCount()
-                    && !getPackageName().equals(adapter.packageAt(position))) {
-                if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-                    onTileLongPress(position, getCurrentFocus());
-                }
-                return true;
-            }
+        // The remote's menu (hamburger) button opens settings, the same as the Settings pill; tile options stay on hold OK.
+        if (!reordering && openPopup == null && cardPrompt == null && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
+            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) findViewById(R.id.btnSettings).performClick();
+            return true;
         }
         if (!reordering) return super.dispatchKeyEvent(event);
         if (dockEditing) return dispatchDockEdit(event);

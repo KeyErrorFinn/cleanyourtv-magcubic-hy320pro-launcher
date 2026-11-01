@@ -25,7 +25,7 @@ class Device:
         return result.stdout.decode(errors='replace').strip()
     def shell(self,command): return self.run('shell',command)
     def guard(self):
-        expected={'ro.build.id':'Projector_20260713.153921','ro.build.version.sdk':'34',
+        expected={'ro.build.id':'Projector_20261014.163241','ro.build.version.sdk':'34',
                   'ro.product.device':'rk3566_rgo','ro.product.board':'exdroid'}
         for prop,value in expected.items():
             if self.shell('getprop '+prop)!=value: raise RuntimeError('Unsupported device/firmware: '+prop)
