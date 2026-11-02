@@ -10,7 +10,7 @@ here=Path(__file__).resolve().parents[1]/'dist';adb=Path(os.environ['ANDROID_HOM
 def run(*args):
  r=subprocess.run([str(adb),'-s',a.device,*args],capture_output=True,check=True,timeout=60)
  return r.stdout.decode(errors='replace').strip()
-if run('shell','getprop ro.build.id')!='Projector_20260713.153921' or run('shell','am get-current-user')!='0':raise SystemExit('Exact firmware/user guard failed')
+if run('shell','getprop ro.build.id') not in ('Projector_20260713.153921','Projector_20261014.163241') or run('shell','am get-current-user')!='0':raise SystemExit('Exact firmware/user guard failed')
 if run('shell','settings get global adb_wifi_enabled')!='1':raise SystemExit('Enable paired Wireless debugging normally before setup; no debugging switch was changed')
 paths={}
 for package,file in [('com.gathin.tvhome','CleanYourTV-HY320Pro-Advanced.apk'),('local.hy320.helperstarter','CleanYourTV-Settings-Starter.apk')]:

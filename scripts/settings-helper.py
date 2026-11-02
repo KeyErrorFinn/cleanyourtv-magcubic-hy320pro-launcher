@@ -6,7 +6,7 @@ from device import Device
 Device(a.device).guard()
 adb=Path(os.environ['ANDROID_HOME'])/'platform-tools/adb.exe';uri='content://com.gathin.tvhome.settings-session'
 def run(command):return subprocess.check_output([str(adb),'-s',a.device,'shell',command],text=True,timeout=35).strip()
-if run('getprop ro.build.id')!='Projector_20260713.153921' or run('am get-current-user')!='0':raise SystemExit('Unexpected firmware or user')
+if run('getprop ro.build.id') not in ('Projector_20260713.153921','Projector_20261014.163241') or run('am get-current-user')!='0':raise SystemExit('Unexpected firmware or user')
 if a.originals:print(run('content call --uri '+uri+' --method originals'));raise SystemExit()
 if a.restore:
  if not a.apply:print('Restore preview: recorded '+a.restore+'. Clock undo compensates elapsed time within the same boot. Turning Wi-Fi off can end this connection. Add --apply to perform this single restore.');raise SystemExit()
