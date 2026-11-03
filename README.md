@@ -29,6 +29,15 @@ Original on-device capture, before public edition packaging. Installed-app artwo
 
 ## Compatibility
 
+The current source includes seasonal scenes, per-app focus colour, night mode, settings search,
+appearance backup/restore, an optional weather line and Advanced quiet hours. Weather requires a
+separately installed compatible add-on; it is not bundled here. The latest source is newer than the
+v1.0.1 prerelease downloads: build from source for these changes.
+
+Both editions and Settings Starter now recognise `Projector_20261014.163241` as well as the original
+build below. Recognition is an explicit firmware allowlist, not a claim that every control on the
+newer firmware has passed physical verification. See the [current source validation](docs/hy320pro/SOURCE-VALIDATION.md).
+
 Tested on **Magcubic HY320 Pro**, Android 14 / SDK 34, firmware
 `Projector_20260713.153921`, device `rk3566_rgo`, board `exdroid`, 32-bit ARM userland.
 The retail model name alone is insufficient. HY320, HY320 Mini, HY300 and HY300 Pro are not established
