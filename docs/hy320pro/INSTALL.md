@@ -7,6 +7,22 @@ about every HY320 Pro. The paired Wireless debugging route does not require enab
 
 ## Connect and verify
 
+On the original tested firmware `Projector_20260713.153921`, the owner first installed **Activity
+Launcher** (installed package `de.szalkowski.activitylauncher.oss`). In its activity list, open
+**Android Settings** (`com.android.tv.settings`) →
+**`com.android.tv.settings.system.development.DevelopmentActivity`**. The exact component is
+`com.android.tv.settings/.system.development.DevelopmentActivity`; the saved baseline confirms it
+was opened by Activity Launcher. This is normal Android Developer options, not the manufacturer's
+USB debug / ADB debug page and not a factory menu. Installing Projectivy or Bare alone did not
+expose this pairing page. Another activity-opening tool may work, but was not the recorded route.
+
+Choose **Wireless debugging** → **Pair device with pairing code**. Run
+`adb pair <projector-ip>:<pairing-port>` and enter the code at the terminal prompt, then
+`adb connect <projector-ip>:<connection-port>` using the separate displayed connection endpoint.
+Keep the code private. The launcher/helper also recognise `Projector_20261014.163241`, but this
+does not establish identical physical verification of that firmware or its initial access route.
+If the activity is absent or blocked, stop rather than trying factory/service activities.
+
 Use current Android SDK Platform-Tools. Open the ordinary Android Developer options page exposed on
 your unit. If there is paired Wireless debugging, pair with its pairing port, then connect using its
 separate connection port. Keep the pairing code private. Never substitute a guessed port or switch
