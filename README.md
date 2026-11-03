@@ -1,5 +1,9 @@
 # CleanYourTV for Magcubic HY320 Pro
 
+<p align="center">
+  <img src="assets/logo.svg" alt="cleanyourtv-magcubic-hy320pro-launcher logo" width="480" />
+</p>
+
 **Main project: launcher source, Basic/Advanced editions and downloads.**
 For upstream device-note submissions only, use the separate [contribution fork](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher-contrib).
 
