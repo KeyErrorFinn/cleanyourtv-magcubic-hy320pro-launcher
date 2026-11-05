@@ -61,12 +61,6 @@ public final class LauncherSettingsActivity extends Activity {
     private WifiScanSession wifiScan;
     private TextView soundVolume;
     private TextView soundMute;
-    private OrientationPilotUi orientationPilot;
-    private ManualCornerUi manualCornerPreview;
-    private ProjectionResetUi projectionReset;
-    private ProjectionScaleUi projectionScale;
-    private AutomaticProjectionUi automaticProjection;
-    private BluetoothAudioUi bluetoothAudio;
     private final android.os.Handler soundHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     /**
@@ -253,7 +247,6 @@ public final class LauncherSettingsActivity extends Activity {
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     private LinearLayout pageRows(String title, String subtitle) {
-        if(bluetoothAudio!=null){bluetoothAudio.close();bluetoothAudio=null;}
         stopBluetoothScan();
         stopWifiScan();
         scanStatus = null;
@@ -279,7 +272,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private void backRow(LinearLayout rows) {
-        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page) || "helper".equals(page) || "backup".equals(page))
+        if ("sound".equals(page) || "storage".equals(page) || "appearance".equals(page) || "backup".equals(page))
             hubRow(rows, R.drawable.ic_settings, "Back to Other settings", "", this::showOther);
         else hubRow(rows, R.drawable.ic_settings, "Back to settings", "", this::showHub);
     }
@@ -373,7 +366,6 @@ public final class LauncherSettingsActivity extends Activity {
 
     private void deviceValueOption(LinearLayout rows, String label, String value, String detail, String path, Intent direct) {
         hubRow(rows, SettingsIcons.forLabel(label,"wifi-networks".equals(page) ? R.drawable.ic_wifi : R.drawable.ic_settings), label, value, () -> {
-            if(direct==null && projectionRecoveryPending()) {Toast.makeText(this,"An adjustment is still finishing. Try again shortly.",Toast.LENGTH_LONG).show();return;}
             if (!java.util.Arrays.asList("Restore factory settings","One-Touch Calibration","Reset trapezoidal correction","Local upgrade","Online upgrade","Clear cache").contains(label)) {
                 open(direct == null ? nativeSettings() : direct); return;
             }
@@ -414,23 +406,23 @@ public final class LauncherSettingsActivity extends Activity {
         page = "language";
         LinearLayout rows = pageRows("Language and keyboard", "Language and input.");
         infoRow(rows, "Current language", java.util.Locale.getDefault().getDisplayName());
-        SystemLanguageControl language = new SystemLanguageControl(this);
-        hubRow(rows, R.drawable.settings_language, "System language", language.available() ? "Choose language" : "Firmware access unavailable", this::chooseSystemLanguage);
-        hubRow(rows, R.drawable.settings_keyboard, "Choose keyboard", "Already-enabled keyboards", this::chooseEnabledKeyboard);
-        hubRow(rows, R.drawable.settings_keyboard, "Manage keyboards", "Installed keyboards", this::manageKeyboards);
-        backRow(rows);
-        focusFirst(rows);
+        hubRow(rows, R.drawable.settings_language, "System language", "System screen", () ->
+                open(SystemSettings.intent(this, Settings.ACTION_LOCALE_SETTINGS)));
+        hubRow(rows, R.drawable.settings_keyboard, "Choose keyboard", "Enabled keyboards", this::chooseEnabledKeyboard);
+        hubRow(rows, R.drawable.settings_keyboard, "Manage keyboards", "System screen", () ->
+                open(SystemSettings.intent(this, Settings.ACTION_INPUT_METHOD_SETTINGS)));
+        backRow(rows); focusFirst(rows);
     }
+
 
     private void showOther() {
         page = "other";
         LinearLayout rows = pageRows("Other settings", "Preferences and customisation.");
         standardPreferenceRow(rows, "Button sound", "sound_effects_enabled", new String[] {"0", "1"}, new String[] {"Off", "On"}, this::showOther);
         standardPreferenceRow(rows, "Screen saver", "screen_off_timeout", new String[] {"300000", "600000", "1200000", "3600000", "2147483647"}, new String[] {"5 minutes", "10 minutes", "20 minutes", "1 hour", "Off"}, this::showOther);
-        hubRow(rows,R.drawable.settings_power,"Timed shutdown","Off, 5, 10, 20 minutes or 1 hour",()->SessionSettingsUi.timer(this));
+        hubRow(rows,R.drawable.settings_power,"Timed shutdown","Off, 5, 10, 20 minutes or 1 hour",()->open(nativeSettings()));
         stockOption(rows, "Restore factory settings", "Warning: a factory reset erases apps, accounts and settings, including CleanYourTV. Opening device controls does not perform a reset. Do not continue unless you intend to erase the projector.", "Other settings");
         hubRow(rows, R.drawable.ic_settings, "Developer mode", "Debugging controls", this::showDeveloper);
-        hubRow(rows,R.drawable.settings_code,"ADB settings helper",SettingsSessionClient.connected()?"Connected":"Not connected",this::showHelper);
         hubRow(rows, R.drawable.ic_home_settings, "Appearance", "Dock, wallpaper & motion", this::showAppearance);
         hubRow(rows, R.drawable.ic_picture, "Sound", "Volume & audio output", this::showSound);
         hubRow(rows, R.drawable.ic_apps, "Storage & USB", "Space & files", this::showStorage);
@@ -439,33 +431,7 @@ public final class LauncherSettingsActivity extends Activity {
         focusFirst(rows);
     }
 
-    /**
-     * The settings helper and Settings Starter on one page: this session's status and its length or stop, then the
-     * companion app that starts the helper after a reboot. The companion stays its own app (it alone holds the
-     * network permission and the pairing identity), so its row opens it rather than reproducing its screens.
-     */
-    private void showHelper() {
-        page = "helper";
-        boolean connected = SettingsSessionClient.connected();
-        LinearLayout rows = pageRows("ADB settings helper", "Run the helper now, or have it start after a reboot.");
-        sectionHeader(rows, "This session");
-        infoRow(rows, "Helper", connected ? "Connected. A reboot, a launcher restart or Stop helper ends it."
-                : "Not connected. Start it from your computer, or use Settings Starter below.");
-        if (connected) {
-            hubRow(rows, R.drawable.settings_code, "Session length and stop", "Change or stop", () ->
-                    SessionSettingsUi.helper(this, () -> scanHandler.postDelayed(() -> {
-                        if ("helper".equals(page) && !isFinishing()) showHelper();
-                    }, 700)));
-        }
-        sectionHeader(rows, "After a reboot");
-        hubRow(rows, R.drawable.settings_code, "Settings Starter",
-                SessionSettingsUi.starterAvailable(this) ? "Start after reboot" : "Not installed", () -> {
-                    returningFromDeviceControls = true;
-                    SessionSettingsUi.openStarter(this);
-                });
-        backRow(rows);
-        focusFirst(rows);
-    }
+
 
     /** The display names of {@link Season#values()}, in the same order. */
     private static final String[] SEASON_NAMES = {"New Year", "Valentine's Day", "St. Patrick's Day", "Easter", "Halloween", "Christmas"};
@@ -525,7 +491,8 @@ public final class LauncherSettingsActivity extends Activity {
         final int[] selected = {checked};
         hubRow(rows, SettingsIcons.forLabel(label, R.drawable.settings_sliders), label, status, () -> {
             if (!Settings.System.canWrite(this)) {
-                Toast.makeText(this, "System-settings access is not enabled. No value changed.", Toast.LENGTH_LONG).show();
+                Intent access = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, android.net.Uri.parse("package:" + getPackageName()));
+                open(getPackageManager().resolveActivity(access, PackageManager.MATCH_DEFAULT_ONLY) == null ? nativeSettings() : access);
                 return;
             }
             AlertDialog dialog = new SettingsPopup.Builder(this).setTitle(label)
@@ -536,8 +503,11 @@ public final class LauncherSettingsActivity extends Activity {
                         if (!StandardPreferenceValues.allowed(key, value)) return;
                         String original = Settings.System.getString(getContentResolver(), key);
                         SharedPreferences undo = getSharedPreferences("standard_settings_undo", MODE_PRIVATE);
-                        if (!undo.contains(key + ".recorded")) undo.edit().putBoolean(key + ".recorded", true)
-                                .putBoolean(key + ".present", original != null).putString(key, original).commit();
+                        if (!undo.contains(key + ".recorded") && !undo.edit().putBoolean(key + ".recorded", true)
+                                .putBoolean(key + ".present", original != null).putString(key, original).commit()) {
+                            Toast.makeText(this, "Could not save the original setting. Nothing changed.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         try {
                             boolean saved = Settings.System.putString(getContentResolver(), key, value);
                             if (!saved || !value.equals(Settings.System.getString(getContentResolver(), key)))
@@ -566,159 +536,30 @@ public final class LauncherSettingsActivity extends Activity {
 
     private void showDeveloper() {
         page = "developer";
-        LinearLayout rows = pageRows("Developer mode", "Debugging, when you need it.\n\nAndroid Developer options includes Wireless debugging. The stock USB and ADB switches are separate.");
-        Intent development = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-        if (getPackageManager().resolveActivity(development, PackageManager.MATCH_DEFAULT_ONLY) != null)
-            hubRow(rows, R.drawable.settings_code, "Android Developer options", "Wireless debugging", () -> open(development));
-        hubRow(rows,R.drawable.settings_list,"Paired computers","Manage debugging authorisations",()->SessionDebugUi.devices(this,this::showDeveloper));
-        hubRow(rows,R.drawable.settings_code,"Pair computer","Two-minute pairing window",()->SessionDebugUi.pair(this));
-        usbRoleRow(rows);
-        debuggingRow(rows, "ADB debug", ApprovedSettingsControl.DebugKey.ADB);
-        debuggingRow(rows, "Wireless debugging", ApprovedSettingsControl.DebugKey.WIRELESS);
-        hubRow(rows, R.drawable.ic_settings, "Back to Other settings", "", this::showOther);
+        LinearLayout rows = pageRows("Developer mode", "Android debugging and development options.");
+        hubRow(rows, R.drawable.settings_code, "Android Developer options", "System screen", () ->
+                open(SystemSettings.intent(this, Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)));
+        stockOption(rows, "USB debug", "USB port and debugging controls remain in manufacturer settings.", "Other settings > Developer mode");
+        hubRow(rows, R.drawable.settings_back, "Back to Other settings", "", this::showOther);
         focusFirst(rows);
     }
 
-    private void debuggingRow(LinearLayout rows, String label, ApprovedSettingsControl.DebugKey key) {
-        ApprovedSettingsControl control = new ApprovedSettingsControl(this);
-        String reviewed = control.debug(key);
-        hubRow(rows, R.drawable.settings_code, label, "1".equals(reviewed) ? "On" : "Off", () -> {
-            final int[] choice = {"1".equals(reviewed) ? 1 : 0};
-            styleDialog(new SettingsPopup.Builder(this).setTitle(label)
-                    .setSingleChoiceItems(new String[]{"Off", "On"}, choice[0], (d, which) -> choice[0] = which)
-                    .setPositiveButton("Apply", (d, which) -> {
-                        Runnable apply = () -> {
-                            try { control.debug(key, reviewed, choice[0] == 1); }
-                            catch (RuntimeException failure) { Toast.makeText(this, failure.getMessage(), Toast.LENGTH_LONG).show(); }
-                            showDeveloper();
-                        };
-                        if (choice[0] == 0 && "1".equals(reviewed))
-                            styleDialog(new SettingsPopup.Builder(this).setTitle("Turn off " + label + "?")
-                                .setMessage("This can disconnect the computer. You can turn it on again here with the remote. Pairings and USB port role are unchanged.")
-                                .setPositiveButton("Turn off", (confirm, button) -> apply.run())
-                                .setNegativeButton(android.R.string.cancel, null).create());
-                        else apply.run();
-                    }).setNegativeButton(android.R.string.cancel, null).create());
-        });
-    }
 
-    private void usbRoleRow(LinearLayout rows) {
-        try {
-            ProjectorUsbRole role = new ProjectorUsbRole();
-            String reviewed = role.read();
-            hubRow(rows, R.drawable.settings_usb, "USB debug", "1".equals(reviewed) ? "On Â· device mode" : "Off Â· USB host", () -> {
-                final int[] choice = {"1".equals(reviewed) ? 1 : 0};
-                styleDialog(new SettingsPopup.Builder(this).setTitle("USB debug")
-                    .setSingleChoiceItems(new String[]{"Off â€” USB host", "On â€” USB device mode"}, choice[0], (d,w) -> choice[0]=w)
-                    .setPositiveButton("Apply", (d,w) -> {
-                        if ((choice[0] == 1) == "1".equals(reviewed)) return;
-                        styleDialog(new SettingsPopup.Builder(this).setTitle("Change USB port role?")
-                            .setMessage("This is the manufacturer's USB debug control. Changing it can disconnect USB drives, receivers, keyboards or USB Ethernet. It does not pair ADB or change Wireless debugging.")
-                            .setPositiveButton("Change role", (confirm,which) -> pageLoader.execute(() -> {
-                                String error=null;
-                                try { role.set(this,reviewed,choice[0]==1); } catch(Exception failure){error="USB role change was not confirmed. Reopen to check its state.";}
-                                final String message=error;
-                                runOnUiThread(()->{if(isFinishing()||isDestroyed())return;if(message!=null)Toast.makeText(this,message,Toast.LENGTH_LONG).show();if("developer".equals(page))showDeveloper();});
-                            })).setNegativeButton(android.R.string.cancel,null).create());
-                    }).setNegativeButton(android.R.string.cancel,null).create());
-            });
-        } catch(Exception failure) { infoRow(rows,"USB debug","Firmware access unavailable. USB role unchanged."); }
-    }
 
-    private void chooseSystemLanguage() {
-        SystemLanguageControl control = new SystemLanguageControl(this);
-        if (!control.available()) {
-            styleDialog(new SettingsPopup.Builder(this).setTitle("System language")
-                .setMessage("This firmware does not expose the required locale setter to CleanYourTV. The permission alone cannot make that API available. No language changed.")
-                .setPositiveButton(android.R.string.ok,null).create()); return;
-        }
-        String reviewed=control.read();
-        java.util.TreeMap<String,String> names=new java.util.TreeMap<>();
-        for(String tag:android.content.res.Resources.getSystem().getAssets().getLocales()) {
-            java.util.Locale locale=java.util.Locale.forLanguageTag(tag.replace('_','-'));
-            if(locale.getLanguage().isEmpty() || "zz".equals(locale.getLanguage()) || "en-XA".equals(locale.toLanguageTag()) || "en-XC".equals(locale.toLanguageTag()) || "ar-XB".equals(locale.toLanguageTag()))continue;
-            String display=locale.getDisplayName(java.util.Locale.getDefault()),nativeName=locale.getDisplayName(locale);
-            names.put(display.equals(nativeName)?display:display+" Â· "+nativeName,locale.toLanguageTag());
-        }
-        String[] labels=names.keySet().toArray(new String[0]),tags=names.values().toArray(new String[0]);
-        int selected=-1;String first=android.os.LocaleList.forLanguageTags(reviewed).get(0).toLanguageTag();
-        for(int i=0;i<tags.length;i++)if(tags[i].equals(first))selected=i;
-        final int[] choice={selected};
-        AlertDialog.Builder builder=new SettingsPopup.Builder(this).setTitle("System language")
-            .setSingleChoiceItems(labels,selected,(d,w)->choice[0]=w)
-            .setPositiveButton("Apply",(d,w)->{if(choice[0]>=0)saveSystemLanguage(control,reviewed,LanguageListValues.promote(reviewed,tags[choice[0]]));})
-            .setNegativeButton(android.R.string.cancel,null);
-        if(control.original()!=null)builder.setNeutralButton("Restore original",(d,w)->saveSystemLanguage(control,reviewed,control.original()));
-        styleDialog(builder.create());
-    }
 
-    private void saveSystemLanguage(SystemLanguageControl control,String reviewed,String tags) {
-        pageLoader.execute(()->{
-            String error=null;try{control.set(reviewed,tags);}catch(Exception failure){error=failure.getMessage();}
-            final String message=error;runOnUiThread(()->{if(isFinishing()||isDestroyed())return;if(message!=null)Toast.makeText(this,message,Toast.LENGTH_LONG).show();if("language".equals(page))showLanguage();});
-        });
-    }
 
-    private void manageKeyboards() {
-        page="keyboards";
-        LinearLayout rows=pageRows("Manage keyboards","Your installed input methods.\n\nChoose among enabled keyboards here. Select a keyboard to enable or disable it.");
-        android.view.inputmethod.InputMethodManager input=getSystemService(android.view.inputmethod.InputMethodManager.class);
-        if(input!=null) {
-            java.util.Set<String> enabled=new java.util.HashSet<>();
-            for(android.view.inputmethod.InputMethodInfo method:input.getEnabledInputMethodList())enabled.add(method.getId());
-            String current=new ApprovedSettingsControl(this).keyboard();
-            for(android.view.inputmethod.InputMethodInfo method:input.getInputMethodList()) {
-                String id=method.getId();
-                String label=method.loadLabel(getPackageManager()).toString();boolean active=enabled.contains(id);
-                hubRow(rows,R.drawable.settings_keyboard,label,id.equals(current)?"Current (enabled)":active?"Enabled":"Disabled",()->{
-                    if(id.equals(current)){Toast.makeText(this,"Choose another keyboard before turning this one off.",Toast.LENGTH_LONG).show();return;}
-                    ApprovedSettingsControl control=new ApprovedSettingsControl(this);String original=control.enabledKeyboards(),selected=control.keyboard();
-                    styleDialog(new SettingsPopup.Builder(this).setTitle((active?"Disable ":"Enable ")+label+"?")
-                        .setMessage(active?"This keyboard will no longer be available for input.":"This keyboard can read the text you type, including passwords. Enable it only if you trust it.")
-                        .setPositiveButton(active?"Disable":"Enable",(dialog,which)->{
-                            try{control.enableKeyboard(original,selected,id,!active);}catch(RuntimeException failure){Toast.makeText(this,failure.getMessage(),Toast.LENGTH_LONG).show();}
-                            manageKeyboards();
-                        }).setNegativeButton("Cancel",null).create());
-                });
-            }
-        }
-        hubRow(rows,R.drawable.settings_keyboard,"Choose keyboard","Enabled keyboards",this::chooseEnabledKeyboard);
-        hubRow(rows,R.drawable.settings_back,"Back to Language and keyboard","",this::showLanguage);focusFirst(rows);
-    }
+
+
+
+
+
+
 
     private void chooseEnabledKeyboard() {
         android.view.inputmethod.InputMethodManager input = getSystemService(android.view.inputmethod.InputMethodManager.class);
-        if (input == null) return;
-        java.util.List<android.view.inputmethod.InputMethodInfo> methods = input.getEnabledInputMethodList();
-        if (methods.isEmpty()) { Toast.makeText(this, "No enabled keyboard was found.", Toast.LENGTH_LONG).show(); return; }
-        ApprovedSettingsControl control = new ApprovedSettingsControl(this);
-        String reviewed = control.keyboard(), subtype = control.subtype();
-        String[] labels = new String[methods.size()];
-        int checked = -1;
-        for (int i = 0; i < methods.size(); i++) {
-            labels[i] = methods.get(i).loadLabel(getPackageManager()).toString();
-            if (methods.get(i).getId().equals(reviewed)) checked = i;
-        }
-        final int[] choice = {checked};
-        styleDialog(new SettingsPopup.Builder(this).setTitle("Choose keyboard")
-                .setSingleChoiceItems(labels, checked, (d, which) -> choice[0] = which)
-                .setPositiveButton("Apply", (d, which) -> {
-                    if (choice[0] < 0) return;
-                    String id = methods.get(choice[0]).getId();
-                    pageLoader.execute(() -> {
-                        String error = null;
-                        try { control.keyboard(reviewed, subtype, id); }
-                        catch (RuntimeException failure) { error = failure.getMessage(); }
-                        final String message = error;
-                        runOnUiThread(() -> {
-                            if (isFinishing() || isDestroyed()) return;
-                            if (message != null) Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-                            if ("language".equals(page)) showLanguage();
-                            else if ("keyboards".equals(page)) manageKeyboards();
-                        });
-                    });
-                }).setNegativeButton(android.R.string.cancel, null).create());
+        if (input != null) input.showInputMethodPicker();
     }
+
 
     private String networkName() {
         try {
@@ -749,9 +590,9 @@ public final class LauncherSettingsActivity extends Activity {
         LinearLayout rows = pageRows("Wireless network", "Wireless connection.");
         infoRow(rows, "Current network", networkName());
         Intent wifi = SystemSettings.intent(this, Settings.ACTION_WIFI_SETTINGS);
-        hubRow(rows,R.drawable.ic_wifi,"WI-FI switch","On / Off",()->SessionSettingsUi.power(this,false,this::showWifi));
-        hubRow(rows,R.drawable.ic_wifi,"Add network","Security & credentials",()->SessionSettingsUi.addNetwork(this,null,this::showWifi));
-        hubRow(rows,R.drawable.settings_list,"Saved networks","Connect or forget",()->SessionSettingsUi.network(this,null,this::showWifi));
+        hubRow(rows,R.drawable.ic_wifi,"WI-FI switch","On / Off",()->open(SystemSettings.intent(this,Settings.ACTION_WIFI_SETTINGS)));
+        hubRow(rows,R.drawable.ic_wifi,"Add network","Security & credentials",()->open(SystemSettings.intent(this,Settings.ACTION_WIFI_SETTINGS)));
+        hubRow(rows,R.drawable.settings_list,"Saved networks","Connect or forget",()->open(SystemSettings.intent(this,Settings.ACTION_WIFI_SETTINGS)));
         hubRow(rows, R.drawable.settings_refresh, "Refresh Network", "Scan nearby networks", () -> showWifiNetworks(true));
         hubRow(rows, R.drawable.settings_list, "Network list", "Nearby networks", this::showWifiNetworks);
         connectionDetails(rows, android.net.NetworkCapabilities.TRANSPORT_WIFI);
@@ -804,7 +645,7 @@ public final class LauncherSettingsActivity extends Activity {
                 if (isFinishing() || isDestroyed() || generation != pageGeneration) return;
                 if (message != null) infoRow(rows, "Network list", message);
                 else if (entries.isEmpty()) infoRow(rows, "Network list", "No visible networks supplied by Android. Refresh requests another scan; Android may limit how often it runs.");
-                for (String[] entry : entries) hubRow(rows,R.drawable.ic_wifi,entry[0],entry[1],()->SessionSettingsUi.network(this,entry[0],this::showWifi));
+                for (String[] entry : entries) hubRow(rows,R.drawable.ic_wifi,entry[0],entry[1],()->open(SystemSettings.intent(this,Settings.ACTION_WIFI_SETTINGS)));
             });
         });
     }
@@ -830,12 +671,11 @@ public final class LauncherSettingsActivity extends Activity {
 
     private void showHotspot() {
         page = "hotspot";
-        LinearLayout rows = pageRows("Hotspot settings", "Share a connection.");
-        hubRow(rows,R.drawable.settings_hotspot,"Hotspot switch","On / Off",()->SessionNetworkUi.power(this,this::showHotspot));
-        for(String label:new String[]{"Network SSID","Password","Display password","Security","Select AP frequency band","OK / Cancel"})
-            hubRow(rows,R.drawable.ic_wifi,label,"Configure hotspot",()->SessionNetworkUi.config(this,label,this::showHotspot));
+        LinearLayout rows = pageRows("Hotspot settings", "Share a connection using the projector's controls.");
+        hubRow(rows, R.drawable.settings_hotspot, "Configure hotspot", "Stock controls", () -> open(networkControls()));
         networkBack(rows);
     }
+
 
     private void showWired() {
         page = "wired";
@@ -845,7 +685,7 @@ public final class LauncherSettingsActivity extends Activity {
         boolean ethernet = caps != null && caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET);
         infoRow(rows, "Connection", ethernet ? "Ethernet active" : "No active Ethernet connection");
         connectionDetails(rows, android.net.NetworkCapabilities.TRANSPORT_ETHERNET);
-        hubRow(rows,R.drawable.ic_wifi,"IP settings","DHCP / static IPv4",()->SessionEthernetUi.show(this,this::showWired));
+        hubRow(rows,R.drawable.ic_wifi,"IP settings","DHCP / static IPv4",()->open(networkControls()));
 
         networkBack(rows);
     }
@@ -862,10 +702,7 @@ public final class LauncherSettingsActivity extends Activity {
         infoRow(rows, "Android version", android.os.Build.VERSION.RELEASE + " / SDK " + android.os.Build.VERSION.SDK_INT);
         infoRow(rows, "Running memory", manager == null ? "Unavailable" : android.text.format.Formatter.formatFileSize(this, memory.totalMem) + " total / " + android.text.format.Formatter.formatFileSize(this, memory.availMem) + " available");
         infoRow(rows, "Storage space", android.text.format.Formatter.formatFileSize(this, disk.getTotalBytes()) + " total / " + android.text.format.Formatter.formatFileSize(this, disk.getAvailableBytes()) + " available");
-        TextView mac=infoRow(rows,"Wireless MAC",SettingsSessionClient.connected()?"Reading...":"ADB helper required");
-        TextView serial=infoRow(rows,"Serial number",SettingsSessionClient.connected()?"Reading...":"ADB helper required");
-        int generation=pageGeneration;
-        if(SettingsSessionClient.connected())SessionSettingsUi.read(this,SettingsSessionClient.IDENTIFIERS,new Bundle(),result->{if(generation==pageGeneration){mac.setText(result.getString("mac"));serial.setText(result.getString("serial"));}});
+        hubRow(rows, R.drawable.settings_info, "Device identifiers", "Stock controls", () -> open(nativeSettings()));
         stockOption(rows, "Local upgrade", "Firmware installation remains under manufacturer control. Opening settings does not begin an upgrade. Only use an update intended for this exact unit.", "System information");
         stockOption(rows, "Online upgrade", "Use the manufacturer's online updater through System information. CleanYourTV does not download or install firmware.", "System information");
         backRow(rows);
@@ -881,7 +718,7 @@ public final class LauncherSettingsActivity extends Activity {
         else if ("wifi".equals(page) || "hotspot".equals(page) || "wired".equals(page)) showNetwork();
         else if ("quiet".equals(page)) showSound();
         else if ("backup".equals(page)) showOther();
-        else if ("developer".equals(page) || "appearance".equals(page) || "helper".equals(page) || "sound".equals(page) || "storage".equals(page)) showOther();
+        else if ("developer".equals(page) || "appearance".equals(page) || "sound".equals(page) || "storage".equals(page)) showOther();
         else if (!"hub".equals(page)) showHub();
         else super.onBackPressed();
     }
@@ -943,12 +780,8 @@ public final class LauncherSettingsActivity extends Activity {
             }
         }
         hubRow(rows, R.drawable.settings_bluetooth, "Available devices", "On-demand search", this::showBluetoothSearch);
-        hubRow(rows,R.drawable.settings_bluetooth,"Manage paired devices","Connections & pairings",()->{
-            if(SettingsSessionClient.connected()){SessionDevicesUi.show(this);return;}
-            if(bluetoothAudio!=null)bluetoothAudio.close();
-            try{bluetoothAudio=new BluetoothAudioUi(this);bluetoothAudio.show();}
-            catch(IllegalStateException|SecurityException unavailable){bluetoothAudio=null;Toast.makeText(this,"Bluetooth audio controls are unavailable on this firmware. No connection changed.",Toast.LENGTH_LONG).show();}
-        });
+        hubRow(rows,R.drawable.settings_bluetooth,"Manage paired devices","System screen",()->
+                open(SystemSettings.intent(this,Settings.ACTION_BLUETOOTH_SETTINGS)));
 
         backRow(rows);
         for (int i = 0; i < rows.getChildCount(); i++) {
@@ -958,29 +791,10 @@ public final class LauncherSettingsActivity extends Activity {
 
     /** Use Android's public consent dialog; never call restricted adapter enable/disable APIs. */
     private void bluetoothPowerRow(LinearLayout rows) {
-        if (android.os.Build.VERSION.SDK_INT >= 31
-                && checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            hubRow(rows, R.drawable.settings_bluetooth, "Bluetooth power", "Allow Nearby devices", () ->
-                    requestPermissions(new String[] {android.Manifest.permission.BLUETOOTH_CONNECT}, PAIRED_DEVICES_PERMISSION));
-            return;
-        }
-        android.bluetooth.BluetoothManager manager = (android.bluetooth.BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        android.bluetooth.BluetoothAdapter adapter = manager == null ? null : manager.getAdapter();
-        if (adapter == null) { infoRow(rows, "Bluetooth power", "Unavailable"); return; }
-        try {
-            int state = adapter.getState();
-            if (state == android.bluetooth.BluetoothAdapter.STATE_OFF) {
-                hubRow(rows,R.drawable.settings_bluetooth,"Bluetooth power","Off",()->SessionSettingsUi.power(this,true,this::showBluetooth));
-            } else if (state == android.bluetooth.BluetoothAdapter.STATE_ON) {
-                hubRow(rows,R.drawable.settings_bluetooth,"Bluetooth power","On",()->SessionSettingsUi.power(this,true,this::showBluetooth));
-            } else {
-                infoRow(rows, "Bluetooth power", state == android.bluetooth.BluetoothAdapter.STATE_TURNING_ON
-                        ? "Turning on. Reopen this page to refresh." : "Turning off. Reopen this page to refresh.");
-            }
-        } catch (SecurityException e) {
-            infoRow(rows, "Bluetooth power", "Access unavailable. Use Manage Bluetooth devices below.");
-        }
+        hubRow(rows, R.drawable.settings_bluetooth, "Bluetooth power", "System screen", () ->
+                open(SystemSettings.intent(this, Settings.ACTION_BLUETOOTH_SETTINGS)));
     }
+
 
     private void showBluetoothSearch() {
         page = "bluetooth-search";
@@ -1082,13 +896,6 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     @Override protected void onStop() {
-        SessionDebugUi.close();
-        if(bluetoothAudio!=null){bluetoothAudio.close();bluetoothAudio=null;}
-        if (orientationPilot != null) { orientationPilot.close(); orientationPilot = null; }
-        if (manualCornerPreview != null) { manualCornerPreview.close(); manualCornerPreview = null; }
-        if (projectionReset != null) { projectionReset.close(); projectionReset = null; }
-        if (projectionScale != null) { projectionScale.close(); projectionScale = null; }
-        if (automaticProjection != null) { automaticProjection.close(); automaticProjection = null; }
         stopBluetoothScan();
         stopWifiScan();
         super.onStop();
@@ -1117,9 +924,10 @@ public final class LauncherSettingsActivity extends Activity {
         else if ("network".equals(page)) showNetwork();
         else if ("datetime".equals(page)) showDateTime();
         else if ("sound".equals(page)) showSound();
-        else if ("keyboards".equals(page)) manageKeyboards();
         else if ("storage".equals(page)) showStorage();
-        else if ("helper".equals(page)) showHelper();
+        else if ("language".equals(page)) showLanguage();
+        else if ("other".equals(page)) showOther();
+        else if ("developer".equals(page)) showDeveloper();
         else if ("app".equals(page) && selectedApp != null) showApp(selectedApp);
     }
 
@@ -1293,7 +1101,6 @@ public final class LauncherSettingsActivity extends Activity {
         e.add(new Entry("Screen saver", "sleep screen off timeout", this::showOther));
         e.add(new Entry("Timed shutdown", "sleep timer power off", this::showOther));
         e.add(new Entry("Developer mode", "adb debugging usb", this::showDeveloper));
-        e.add(new Entry("ADB settings helper", "helper starter adb reboot", this::showHelper));
         e.add(new Entry("Appearance", "dock wallpaper theme look motion", this::showAppearance));
         e.add(new Entry("Wallpaper", "background picture", this::showWallpaperPicker));
         e.add(new Entry("Seasonal themes", "holiday christmas halloween easter valentine new year", this::showSeasonalPicker));
@@ -1473,7 +1280,7 @@ public final class LauncherSettingsActivity extends Activity {
             String label = labels[i];
             if ("Auto time".equals(label)) continue;
             if ("Use 24-hour format".equals(label)) standardPreferenceRow(rows, label, "time_12_24", new String[] {"12", "24"}, new String[] {"12-hour", "24-hour"}, this::showDateTime);
-            else hubRow(rows, SettingsIcons.forLabel(label, R.drawable.settings_clock), label, values[i], () -> SessionSettingsUi.clock(this,label,this::showDateTime));
+            else hubRow(rows, SettingsIcons.forLabel(label, R.drawable.settings_clock), label, values[i], () -> open(SystemSettings.intent(this,Settings.ACTION_DATE_SETTINGS)));
         }
         backRow(rows);
         focusFirst(rows);
@@ -1484,7 +1291,7 @@ public final class LauncherSettingsActivity extends Activity {
         String status = "1".equals(current) ? "On" : "0".equals(current) ? "Off" : "System default";
         hubRow(rows, R.drawable.settings_clock, label, status, () -> {
             if (checkSelfPermission("android.permission.WRITE_SECURE_SETTINGS") != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Automatic-time access is not enabled. No value changed.", Toast.LENGTH_LONG).show();
+                open(SystemSettings.intent(this,Settings.ACTION_DATE_SETTINGS));
                 return;
             }
             final int[] choice = {"1".equals(current) ? 1 : "0".equals(current) ? 0 : -1};
@@ -1554,96 +1361,22 @@ public final class LauncherSettingsActivity extends Activity {
         });
     }
 
-    private boolean projectionRecoveryPending() {
-        return new OrientationJournal(getFilesDir()).exists() || new OrientationJournal(getFilesDir(),OrientationJournal.Scope.MANUAL_CORNERS).exists()
-                || new OrientationJournal(getFilesDir(),OrientationJournal.Scope.RESET).exists()
-                || new OrientationJournal(getFilesDir(),OrientationJournal.Scope.SCALING).exists()
-                || AutomaticProjectionJournal.pending(getFilesDir());
-    }
-    private void autoFocusRow(LinearLayout rows) {
-        try {
-            boolean current=ProjectorAutoFocus.read();
-            hubRow(rows,R.drawable.settings_focus,"Auto Focus",current?"On":"Off",()->{
-                final int[] choice={current?1:0};
-                AlertDialog.Builder builder=new SettingsPopup.Builder(this).setTitle("Auto Focus")
-                        .setSingleChoiceItems(new String[]{"Off","On"},choice[0],(d,index)->choice[0]=index)
-                        .setPositiveButton("Apply",(d,w)->saveAutoFocus(choice[0]==1))
-                        .setNegativeButton(android.R.string.cancel,null);
-                Boolean original=ProjectorAutoFocus.original(this);
-                if(original!=null)builder.setNeutralButton("Restore original",(d,w)->saveAutoFocus(original));
-                styleDialog(builder.create());
-            });
-        } catch(Exception unavailable) {
-            stockOption(rows,"Auto Focus","Enable or disable automatic optical focus.","Projection settings");
-        }
-    }
-    private void saveAutoFocus(boolean enabled) {
-        int generation=pageGeneration;
-        pageLoader.execute(()->{
-            String problem=null;
-            try {ProjectionWorkflows.prepare(this,null);ProjectorAutoFocus.set(this,enabled);}catch(Exception error){android.util.Log.w("ProjectorFocus","Preference change failed",error);problem=ProjectionWorkflows.message(error);}
-            final String message=problem;
-            runOnUiThread(()->{
-                if(isFinishing() || isDestroyed() || generation!=pageGeneration)return;
-                if(message!=null)Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-                showProjector();
-            });
-        });
-    }
+
+
+
 
     private void showProjector() {
-        if (!projectorVerified) { notVerifiedNote(); return; }
         page = "projector";
-        LinearLayout rows = pageRows("Projection settings", "Make the picture fit your space.");
-
-        if (getResources().getBoolean(R.bool.orientation_pilot_entry_enabled)) {
-            hubRow(rows, R.drawable.settings_rotate, "Installation mode", "Front, rear & ceiling", () -> {
-                if (orientationPilot != null) orientationPilot.close();
-                orientationPilot = new OrientationPilotUi(this);
-                orientationPilot.show();
-            });
-        }
-        hubRow(rows,R.drawable.settings_scale,"Digital scaling","Steps 0 - 20",()->{
-            if(projectionScale!=null)projectionScale.close();projectionScale=new ProjectionScaleUi(this);projectionScale.show();
-        });
-        hubRow(rows,R.drawable.settings_keystone,"Auto Trapezoidal Correction","Reading...",()->{
-            if(automaticProjection!=null)automaticProjection.close();automaticProjection=new AutomaticProjectionUi(this,false);automaticProjection.show();
-        });
-        autoFocusRow(rows);
-        hubRow(rows,R.drawable.settings_focus,"One-Touch Calibration","Refocus",()->{
-            if(automaticProjection!=null)automaticProjection.close();automaticProjection=new AutomaticProjectionUi(this,true);automaticProjection.show();
-        });
-        hubRow(rows, R.drawable.settings_keystone, "Manual trapezoidal", "Four corners", () -> {
-            if (manualCornerPreview != null) manualCornerPreview.close();
-            manualCornerPreview = new ManualCornerUi(this);
-            manualCornerPreview.show();
-        });
-
-        hubRow(rows,R.drawable.settings_refresh,"Reset trapezoidal correction","Reset",()->{
-            if(projectionReset!=null)projectionReset.close();projectionReset=new ProjectionResetUi(this);projectionReset.show();
-        });
-        backRow(rows);
-        focusFirst(rows);
-        loadProjectionReadouts(rows);
+        LinearLayout rows = pageRows("Projection settings", "Adjust the picture with the projector's controls.");
+        for (String label : new String[] {"Installation mode", "Digital scaling", "Auto Trapezoidal Correction",
+                "Auto Focus", "One-Touch Calibration", "Manual trapezoidal", "Reset trapezoidal correction"})
+            stockOption(rows, label, "Open the manufacturer's " + label + " control.", "Projection settings");
+        backRow(rows); focusFirst(rows);
     }
 
-    void projectionSettingSaved(){
-        if(isFinishing()||isDestroyed()||!"projector".equals(page))return;
-        LinearLayout rows=findViewById(R.id.settingsHubRows);if(rows!=null)loadProjectionReadouts(rows);
-    }
-    private void loadProjectionReadouts(LinearLayout rows){
-        int generation=pageGeneration;
-        pageLoader.execute(()->{
-            ProjectionReadouts data=null;try{data=ProjectionReadouts.read();}catch(Exception failure){android.util.Log.w("ProjectionStatus","Read-only status unavailable",failure);}
-            final ProjectionReadouts result=data;
-            runOnUiThread(()->{
-                if(isFinishing()||isDestroyed()||generation!=pageGeneration||!"projector".equals(page))return;
-                String[][] values=result==null?new String[][]{{"Auto Trapezoidal Correction","Unavailable"},{"One-Touch Calibration","Unavailable"}}:
-                    new String[][]{{"Installation mode",result.mode()},{"Digital scaling",result.scaling()},{"Auto Trapezoidal Correction",ProjectionReadouts.toggle(result.state.guard(OrientationPilot.Guard.AUTO))},{"One-Touch Calibration","Refocus"}};
-                for(String[] item:values){View row=rows.findViewWithTag(item[0]);if(row!=null)((TextView)row.findViewById(R.id.status)).setText(item[1]);}
-            });
-        });
-    }
+
+
+
     private void showApps() {
         page = "apps";
         LinearLayout rows = pageRows("Application Manager", "Installed applications.");
@@ -1671,6 +1404,11 @@ public final class LauncherSettingsActivity extends Activity {
                 }
             });
         });
+    }
+
+    private void openAppInfo(String pkg) {
+        Intent info = SystemSettings.appInfo(this, pkg);
+        open(info == null ? SystemSettings.intent(this, Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS) : info);
     }
 
     private String size(long bytes){return android.text.format.Formatter.formatFileSize(this,bytes);}
@@ -1702,9 +1440,9 @@ public final class LauncherSettingsActivity extends Activity {
                 final String value=result;runOnUiThread(()->{if(generation==pageGeneration&&!isFinishing()&&!isDestroyed())storage.setText(value);});
             });
             if((info.applicationInfo.flags&android.content.pm.ApplicationInfo.FLAG_SYSTEM)==0&&!pkg.equals(getPackageName())){
-                hubRow(rows,R.drawable.settings_refresh,"Clear cache","Temporary files only",()->SessionSettingsUi.appAction(this,pkg,SettingsSessionClient.CACHE,()->showApp(pkg)));
-                hubRow(rows,R.drawable.settings_delete,"Clear app data","Erases this app's accounts and settings",()->SessionSettingsUi.appAction(this,pkg,SettingsSessionClient.DATA,()->showApp(pkg)));
-                hubRow(rows,R.drawable.settings_power,"Force stop","Stop this app",()->SessionSettingsUi.appAction(this,pkg,SettingsSessionClient.FORCE_STOP,()->showApp(pkg)));
+                hubRow(rows,R.drawable.settings_refresh,"Clear cache","Temporary files only",()->openAppInfo(pkg));
+                hubRow(rows,R.drawable.settings_delete,"Clear app data","Erases this app's accounts and settings",()->openAppInfo(pkg));
+                hubRow(rows,R.drawable.settings_power,"Force stop","Stop this app",()->openAppInfo(pkg));
             }
             boolean systemApp = (info.applicationInfo.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0;
             if (!systemApp && !pkg.equals(getPackageName()))
@@ -1757,7 +1495,7 @@ public final class LauncherSettingsActivity extends Activity {
                 if (isFinishing() || isDestroyed() || generation != pageGeneration) return;
                 if (permissions.isEmpty()) infoRow(rows, "Permissions", "No requested permissions reported by Android.");
                 for (String[] item : permissions)
-                    hubRow(rows,R.drawable.settings_info,item[0],item[2],()->SessionSettingsUi.permission(this,pkg,item[1],item[0],()->showAppPermissions(pkg)));
+                    hubRow(rows,R.drawable.settings_info,item[0],item[2],()->openAppInfo(pkg));
             });
         });
     }

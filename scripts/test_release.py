@@ -19,16 +19,33 @@ class ReleaseTests(unittest.TestCase):
         providers={x.get(ANDROID+'name') for x in main.find('application').findall('provider')}
         self.assertFalse({'.SettingsSessionProvider','.StarterStatusProvider','.ProjectionRecoveryProvider'} & providers)
 
-    def test_shell_helper_source_only_in_advanced(self):
-        self.assertFalse((ROOT/'app/src/main/java/com/gathin/tvhome/ShellSettingsSession.java').exists())
-        self.assertTrue((ROOT/'app/src/advanced/java/com/gathin/tvhome/ShellSettingsSession.java').exists())
+    def test_no_helper_pairing_or_native_writer_in_default_branch(self):
+        # Switching from Ultimate can leave ignored compiler output; it must not be mistaken for
+        # tracked companion source, or become part of a main-branch build.
+        for relative in ['settings-starter/AndroidManifest.xml', 'settings-starter/build.py',
+                         'settings-starter/src/local/hy320/helperstarter/StarterRunner.java',
+                         'app/src/advanced/cpp/CMakeLists.txt']:
+            self.assertFalse((ROOT/relative).exists(), relative)
+        forbidden = ['SettingsSessionClient', 'ShellSettingsSession', 'StarterStatusProvider',
+                     'SettingsSessionProvider', 'NativePairing', 'ManualCornerBackend', 'local.hy320.helperstarter']
+        for directory in ['main', 'basic', 'advanced']:
+            source = ROOT/'app/src'/directory
+            for path in source.rglob('*.java'):
+                text = path.read_text(encoding='utf-8')
+                for name in forbidden:
+                    self.assertNotIn(name, text, str(path))
+                for key in ['adb_wifi_enabled', 'adb_enabled']:
+                    self.assertNotIn('"'+key+'"', text, str(path))
 
-    def test_starter_confirmation_remains_signature_protected(self):
+    def test_advanced_has_no_helper_providers_or_network_permission(self):
         root=ET.parse(ROOT/'app/src/advanced/AndroidManifest.xml').getroot()
-        permission=root.find('permission')
-        self.assertEqual(permission.get(ANDROID+'protectionLevel'),'signature')
-        provider=next(x for x in root.find('application').findall('provider') if x.get(ANDROID+'name')=='.StarterStatusProvider')
-        self.assertEqual(provider.get(ANDROID+'permission'),permission.get(ANDROID+'name'))
+        self.assertIsNone(root.find('permission'))
+        self.assertFalse(root.findall('.//provider'))
+        for manifest in ['main', 'advanced']:
+            tree=ET.parse(ROOT/'app/src'/manifest/'AndroidManifest.xml').getroot()
+            permissions={x.get(ANDROID+'name') for x in tree.findall('uses-permission')}
+            self.assertNotIn('android.permission.INTERNET',permissions)
+            self.assertNotIn('android.permission.CHANGE_CONFIGURATION',permissions)
 
     def test_every_adb_call_selects_device(self):
         result=type('Result',(),{'returncode':0,'stdout':b'ok','stderr':b''})()

@@ -1,36 +1,31 @@
-# Compatibility and verification
+# Compatibility and physical verification
 
-One retail HY320 Pro was examined; Android reports manufacturer/brand rockchip, device/model
-rk3566_rgo, board exdroid, Android 14 SDK34, firmware Projector_20260713.153921,
-armeabi-v7a/armeabi userland and about 1GB RAM. A Leanback feature and ordinary app launchers are
-present. Advertising an Android version does not establish certification or compatibility.
+Original examined unit: Magcubic HY320 Pro, Android 14 SDK 34, `rk3566_rgo`, `exdroid`, firmware
+`Projector_20260713.153921`, 32-bit ARM, about 1 GB RAM. Current source also recognises
+`Projector_20261014.163241`; this is not proof of identical firmware interfaces or testing.
 
-The original installed Advanced implementation passed owner checks for Home/Back/D-pad, integrated
-settings navigation, media volume/mute/held repeat, HDMI video/audio, streaming playback and reboot
-startup. Optical controls were separately verified during development with attended apply/restore
-checks. Latest helper startup was owner-confirmed after normal reboot, without manual Start, showing
-Helper connected - Wireless debugging off. A network check explicitly refused the prior endpoint.
+The preceding full implementation passed owner-confirmed Home/Back, settings navigation, volume,
+held repeat/mute, HDMI/streaming audio and reboot checks. Those observations apply to that earlier
+implementation; they do not physically validate these new helper-free APKs or the renamed Ultimate.
 
-Public Basic/Advanced source separation, certificate generation and public scripts are new packaging
-changes. Build tests/static APK inspection do not substitute for a physical run of these exact public
-APKs. The existing device installation is deliberately preserved while preparing this release.
-No claim of a second tested projector or universal HY320 Pro support is made.
+The new helper-free split is build/static tested only. Required real-device checks before claiming
+it tested: install/update and Home; all eight sections/D-pad/Back; returning from each stock fallback;
+volume/mute/held repeat; on-demand Bluetooth/Wi-Fi scan permissions; app-info and document picker;
+HDMI/streaming audio; reboot/standby/wake with debugging off. Do not change calibration or disable
+Bluetooth on a unit whose only remote depends on it merely to test page access.
 
-Known limits:
+Known boundaries:
 
-- Manufacturer reset and local/online firmware-update operations remain manufacturer workflows;
-  Advanced does not claim complete replacement of every privileged system operation.
-- Cache-only removal was denied by firmware authority. No app-data clearing fallback is used.
-- Normal Android permission/pairing/installation confirmations can still appear.
-- HDMI detection uses this firmware's source status; no invented standby/orange signal.
-- Cast shortcut opens separately installed AirScreen; Miracast opens the existing receiver.
-- Bluetooth-off/disconnect/forget tests were avoided where the sole remote could be lost.
-- Enterprise Wi-Fi, Ethernet hardware, clock changes, permission/data operations and other disruptive
-  controls have not all been verified end to end on every configuration.
-- No measured app-start performance improvement is promised. Advanced helper adds memory overhead.
-- Helper startup depends on legitimate pairing, firmware policy and network consent. Revocation/expiry,
-  a changed firmware or launcher-process exit can require manual recovery.
+- Advanced projection rows open manufacturer controls; no optical writes occur in Advanced itself.
+- Exact exported stock subpages vary by firmware. A standard action or the normal manufacturer
+  settings root is used; users may need to select the named option there.
+- Bluetooth power/connection management, network configuration, manual clock/time zone, system
+  language, keyboard management, app administration and reset/update workflows remain stock.
+- Missing optional settings authority opens the appropriate stock page. Missing storage usage
+  access shows a limited readout. No security setting is lowered to force a control.
+- Hardware HDMI/protected video can be blank in screenshots; physical confirmation is required.
+- No measured app-start performance improvement or universal retail-model support is claimed.
+- AirScreen/Miracast are separate apps; no certified Chromecast receiver is added.
 
-Before enabling hardware writes on another unit, compare firmware/device/board/ABI, back up its own
-values, establish a physical baseline and verify apply/readback/restore. Do not copy calibration or
-disable guards merely because another projector has the same retail name.
+Backups are not firmware backups. Retain stock Home and Settings; recovery depends on accessible
+Settings or ADB and does not guarantee recovery from a boot failure.

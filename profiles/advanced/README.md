@@ -1,13 +1,10 @@
-# Magcubic HY320 Pro - Advanced
+# Advanced profile
 
-Settings opens the integrated eight-section interface. Its additional permissions and optional Settings Starter are separate setup steps.
+Appearance defaults only; JSON does not change edition or grant authority.
+Advanced uses eight styled settings sections, direct supported controls and stock fallbacks.
+Neither main-branch edition contains an ADB settings helper or pairing companion.
+APK: `CleanYourTV-HY320Pro-Advanced.apk`.
 
-- [Main device guide](../../docs/device.md)
-- [Installation and updates](../../docs/hy320pro/INSTALL.md)
-- [Source and build instructions](../../docs/hy320pro/BUILD.md)
-- [Restore stock Home and undo access](../../docs/hy320pro/RESTORE.md)
-- [Configuration](config.json): six-slot dock, black background, greeting and installed casting/USB shortcuts. The clock follows the system.
-
-APK: `CleanYourTV-HY320Pro-Advanced.apk`. The configuration file controls appearance; it does not select the APK edition or grant authority. Both editions share the same package ID and cannot be installed side by side.
-
-The APK includes this default arrangement. Only change/push the optional theme configuration if you want to override it. Rebuilding the launcher applies edited defaults. Finish projection operations and stop the helper before updating it. Do not copy someone else's calibration, presets, account or network state.
+[Configuration](../../docs/CONFIGURATION.md) · [Install](../../docs/hy320pro/INSTALL.md) ·
+[Build](../../docs/hy320pro/BUILD.md) · [Editions](../../docs/hy320pro/EDITIONS.md) ·
+[Recovery](../../docs/hy320pro/RESTORE.md). Only installed applications appear in the dock.

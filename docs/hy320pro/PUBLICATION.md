@@ -1,9 +1,20 @@
-# Standalone publication validation
+# Publication checklist
 
-Version 1.0.1 extracts only the launcher, Basic/Advanced flavors, companion, relevant tests/scripts, configuration, device documentation and required licences. No upstream device catalog, theme library, add-ons or maintainer workflows are copied. No parent checkout is required.
+The main branch publishes Basic and helper-free Advanced. Ultimate's helper-enabled implementation,
+documentation, builds and downloads belong to its separate branch. Upstream contribution text must
+refer only to helper-free builds and require debugging off after setup.
 
-The source is derived from the prior published HY320 Pro implementation; see NOTICE.md. Package IDs and signing identity are retained; versionCode advances from 100 to 101. This is a packaging/publication change, not a projector performance or hardware-function change. No device connection or installation is performed during publication.
+Before publishing an APK, run `python scripts/test_release.py` and `python scripts/build.py` with
+the desired editions and the publisher's private signing key. Inspect final merged manifests and
+DEX: no INTERNET, settings-session/starter providers, native projector bridge or pairing client in
+either main-branch APK. Verify hashes, certificate and matching version/code, and distinguish build
+checks from physical projector tests. Retain all relevant licences.
 
-Original Advanced controls and helper boot behavior were verified on the owner's unit. Exact public release artifacts have not been physically retested; this release remains a prerelease. Build/static checks are recorded below after the standalone build.
+Version 1.3.0 outputs are in `dist/helper-free/`; never mix old companion APKs or old Advanced assets
+into them. Existing v1.0.1 release assets predate this split and must not be silently replaced or
+relabelled. Do not move existing source tags. Public releases need accurate physical verification
+limits and instructions for upgrading from old helper-enabled Advanced.
 
-Standalone validation: Basic 226 JVM tests, Advanced 425 JVM tests, zero failures and zero lint errors in both editions. Seven release/installer boundary tests pass. Both launchers and the companion build; all three APKs have versionCode 101 and the same preserved signing certificate. Local documentation links are self-contained. Basic APK checks confirm no Advanced secure/system settings write permissions, Bluetooth-control permission, native settings library or shell-helper class. See release-validation.json for artifact sizes.
+Never publish private backups, calibration, device/network/account identifiers, pairing identities
+or signing keys. Screenshot descriptions must say which actual build was captured. Main source and
+release packaging are independent of the upstream reference APK-size gate.

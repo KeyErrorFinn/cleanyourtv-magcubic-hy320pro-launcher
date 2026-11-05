@@ -12,7 +12,7 @@ import subprocess
 ROOT=Path(__file__).resolve().parents[1]
 PACKAGE='com.gathin.tvhome'
 STOCK='com.htc.magcubicos/com.htc.magcubicos.activity.MainActivity'
-GRANTS=['WRITE_SECURE_SETTINGS','CHANGE_CONFIGURATION','BLUETOOTH_CONNECT','BLUETOOTH_SCAN','ACCESS_FINE_LOCATION']
+GRANTS=['WRITE_SECURE_SETTINGS','BLUETOOTH_CONNECT','BLUETOOTH_SCAN','ACCESS_FINE_LOCATION']
 
 class Device:
     def __init__(self, selector):
@@ -25,7 +25,10 @@ class Device:
         return result.stdout.decode(errors='replace').strip()
     def shell(self,command): return self.run('shell',command)
     def guard(self):
-        expected={'ro.build.id':'Projector_20261014.163241','ro.build.version.sdk':'34',
+        build=self.shell('getprop ro.build.id')
+        if build not in ['Projector_20260713.153921','Projector_20261014.163241']:
+            raise RuntimeError('Unsupported device/firmware: ro.build.id')
+        expected={'ro.build.version.sdk':'34',
                   'ro.product.device':'rk3566_rgo','ro.product.board':'exdroid'}
         for prop,value in expected.items():
             if self.shell('getprop '+prop)!=value: raise RuntimeError('Unsupported device/firmware: '+prop)
@@ -100,7 +103,7 @@ def main():
         tools=Path(os.environ['ANDROID_HOME'])/'build-tools/34.0.0'
         details=subprocess.check_output([str(tools/('aapt2.exe' if os.name=='nt' else 'aapt2')),'dump','badging',str(apk)],text=True)
         match=re.search(r"package: name='([^']+)'",details)
-        if not match or match.group(1) not in [PACKAGE,'local.hy320.helperstarter']: raise RuntimeError('Unexpected APK package')
+        if not match or match.group(1)!=PACKAGE: raise RuntimeError('Only a launcher APK is accepted on the helper-free branch')
         package=match.group(1);d.starter_stopped();d.quiescent();backup(d)
         result=d.run('install','--no-incremental','-r',str(apk))
         if 'Success' not in result: raise RuntimeError('Installation not confirmed: '+result)
@@ -109,7 +112,8 @@ def main():
         print('Installed and hash-verified only. No grants, Home selection or package disabling.');return
     if a.action=='grant-advanced':
         dump=d.shell('dumpsys package '+PACKAGE)
-        if 'com.gathin.tvhome.settings-session' not in dump: raise RuntimeError('Advanced edition must be installed')
+        if 'android.permission.WRITE_SECURE_SETTINGS' not in dump: raise RuntimeError('Helper-free Advanced edition must be installed')
+        if 'com.gathin.tvhome.settings-session' in dump: raise RuntimeError('Use the Ultimate branch guide for the helper-enabled edition')
         backup(d)
         for permission in GRANTS:
             full='android.permission.'+permission;d.shell('pm grant --user 0 '+PACKAGE+' '+full)

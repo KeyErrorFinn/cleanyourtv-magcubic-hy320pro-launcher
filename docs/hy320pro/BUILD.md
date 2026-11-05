@@ -1,9 +1,8 @@
 # Build both editions
 
 The documented build environment is Windows, Python 3.10+, JDK 17, Android SDK platform 34,
-build-tools 34.0.0, NDK 30.0.16248370 and CMake 3.22.1. Set ANDROID_HOME and JAVA_HOME.
-The standalone companion toolchain currently uses Windows SDK executable paths. Other operating
-systems have not been validated. Dependency downloads require network access at build time only.
+build-tools 34.0.0, no native toolchain requirement. Set ANDROID_HOME and JAVA_HOME.
+Dependency downloads require network access at build time only.
 
 Create a private signing identity once with JDK keytool; let its interactive prompts collect passwords:
 
@@ -23,15 +22,11 @@ python scripts/build.py --edition both --keystore "$HOME\cleanyourtv-release.jks
 Remove-Item Env:CYTV_STORE_PASSWORD, Env:CYTV_KEY_PASSWORD
 ```
 
-Use `--edition basic` or `--edition advanced` to build one. Both launchers intentionally share package
-`com.gathin.tvhome` and version code 120 so a same-signed edition switch can be a normal update, after
-stopping/turning off the helper. They cannot be installed side by side. Starter package:
-`local.hy320.helperstarter`. Keep both apps on the same signing key.
-
-The script extracts the actual public certificate, pins it into the Advanced helper and companion,
-runs JVM tests and lint for the chosen editions and builds signed APKs. Advanced also builds the
-companion from pinned SHA256-checked Maven dependencies. Outputs and hashes go into ignored `dist/`.
-No device is contacted. Native code is compiled from source; no device vendor library is copied.
+Use `--edition basic` or `--edition advanced` to build one. Both launchers intentionally share package `com.gathin.tvhome` and version code 130, so a same-signed
+edition switch can be a normal update. They cannot install side by side. For a previous helper-enabled
+installation, follow EDITIONS.md before switching. The script builds only Basic/Advanced; it cannot
+build a companion. Outputs and hashes go into ignored `dist/helper-free/`. Both APKs are signed by
+the chosen builder key. No device is contacted and no native projector library is packaged.
 
 Independent builders use their own key. That build cannot update an existing installation signed by someone
 else; Android will reject the signature mismatch. Do not bypass it. Back up, restore stock Home and
@@ -44,4 +39,4 @@ variations. Check source tag, tool versions, APK hash and signing certificate to
 
 ## Source lineage and repository layout
 
-This standalone project preserves the HY320 implementation derived from CleanYourTV commit `eb0131a3`, with the device-specific changes previously published in the contribution fork. Both editions share `app/src/main`; their settings implementations live in `app/src/basic` and `app/src/advanced`. The companion is in `settings-starter/`. No parent checkout or unrelated upstream directory is required. Run all documented commands from this repository root. See NOTICE.md for exact provenance and licences.
+This standalone project preserves the HY320 implementation derived from CleanYourTV commit `eb0131a3`, with the device-specific changes previously published in the contribution fork. Both editions share `app/src/main`; their settings implementations live in `app/src/basic` and `app/src/advanced`. The full-control implementation lives on the separate `ultimate` branch. No parent checkout or unrelated upstream directory is required. Run all documented commands from this repository root. See NOTICE.md for exact provenance and licences.

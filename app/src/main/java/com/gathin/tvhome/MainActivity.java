@@ -457,11 +457,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!userStorageUnlocked()) { showEarlyBootHome(); return; }
-        // Optional signed companion recovers the helper after launcher-process recreation.
-        if (BuildConfig.ADVANCED_SETTINGS) sendBroadcast(new Intent("com.gathin.tvhome.SETTINGS_STARTER_READY")
-                .setComponent(new android.content.ComponentName("local.hy320.helperstarter",
-                        "local.hy320.helperstarter.ReadyReceiver")),
-                "com.gathin.tvhome.permission.SETTINGS_STARTER");
         setContentView(R.layout.activity_main);
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
@@ -469,7 +464,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         appLibrarySelection = cfg.appLibrarySelection;
         // restore_key_services: after a force stop, put back the remote's accessibility helpers that Android took
         // off the list (needs WRITE_SECURE_SETTINGS, granted by build-and-install with RESTORE_KEY_SERVICES=1).
-        if (cfg.restoreKeyServices) ServiceRepair.restore(this);
         settingsRevision = settingsRevision();
         applyViewInputsHandler(cfg.handleViewInputs);
         settingsKeycodes = cfg.settingsKeycodes;

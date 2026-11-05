@@ -40,11 +40,9 @@ android {
         applicationId providers.gradleProperty('launcherApplicationId').getOrElse('com.gathin.tvhome')
         minSdk 26
         targetSdk 34
-        versionCode 120
-        versionName '1.2.0'
+        versionCode 130
+        versionName '1.3.0'
         buildConfigField 'String', 'SIGNING_CERT_SHA256', '"' + providers.gradleProperty('releaseCertificateSha256').getOrElse('UNCONFIGURED') + '"'
-        ndk { abiFilters 'armeabi-v7a' }
-        externalNativeBuild { cmake { arguments '-DANDROID_STL=none' } }
     }
 
     buildTypes {
@@ -70,12 +68,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    externalNativeBuild {
-        cmake {
-            path file('src/advanced/cpp/CMakeLists.txt')
-            version '3.22.1'
-        }
-    }
 }
 
 dependencies {
@@ -85,12 +77,6 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
-// Basic never packages the native settings bridge or declares its privileged providers.
-androidComponents {
-    onVariants(selector().withFlavor('edition', 'basic')) { variant ->
-        variant.packaging.jniLibs.excludes.add('**/libcytv_ksc_read.so')
-    }
-}
 tasks.configureEach { task ->
     if (task.name.startsWith('assemble') && task.name.endsWith('Release')) {
         task.doFirst {

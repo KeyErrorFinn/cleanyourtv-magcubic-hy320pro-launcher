@@ -1,71 +1,35 @@
-# Advanced permissions and helper
+# Helper-free Advanced permissions
 
-Basic has no integrated settings backend, secure/system settings write permissions, Bluetooth-control
-permissions, native settings bridge, starter status provider or shell-helper entry point. Optional
-location access is only for the Wi-Fi-name label; declining it leaves a generic Network shortcut.
-Both launchers are offline and request no INTERNET permission.
+Basic has no Advanced permission additions. Advanced declares no INTERNET, settings-session provider,
+pairing permission, native bridge or CHANGE_CONFIGURATION. It cannot enable debugging or start a
+shell helper. Normal use works after debugging is switched off.
 
-Advanced uses standard permissions where possible and the reviewed manufacturer interface where
-necessary. Permission grants do not make it a system app or root. The code exposes typed actions,
-not an arbitrary command runner.
-
-| Access | Purpose |
+| Access | Purpose and boundary |
 |---|---|
-| MODIFY_AUDIO_SETTINGS | Media-volume/mute controls |
-| WRITE_SETTINGS special app access | Button sound, screen-saver timeout, 12/24-hour format |
-| WRITE_SECURE_SETTINGS | Automatic date/time and time zone, keyboard selection/subtype, ADB/Wireless debugging keys |
-| CHANGE_CONFIGURATION | System locale list |
-| BLUETOOTH_CONNECT/SCAN | Paired devices, requested foreground discovery and supported audio operations |
-| ACCESS_FINE_LOCATION, Wi-Fi/network access | SSID and requested foreground Wi-Fi discovery |
-| PACKAGE_USAGE_STATS declaration | Optional app storage usage readout; separate special access, not automatically granted |
-| REQUEST_DELETE_PACKAGES | Android's user-confirmed user-app removal UI |
-| Signature-only starter permission | Confirmation between the same-signed launcher and companion |
+| MODIFY_AUDIO_SETTINGS | Standard media volume/mute and optional local quiet-hours volume cap |
+| BLUETOOTH_CONNECT | Paired-device names, adapter status and Android-confirmed pairing |
+| BLUETOOTH_SCAN; legacy BLUETOOTH/ADMIN | Explicit foreground search only, bounded to 12 seconds |
+| CHANGE_WIFI_STATE | Explicit foreground Wi-Fi scan; power/configuration remains stock |
+| WRITE_SETTINGS special access | Only `sound_effects_enabled`, `screen_off_timeout`, `time_12_24` |
+| WRITE_SECURE_SETTINGS (optional one-time grant) | Only `auto_time` and `auto_time_zone`; original values journalled |
+| PACKAGE_USAGE_STATS special access | Optional app storage breakdown; absent access shows unavailable |
+| REQUEST_DELETE_PACKAGES | Android confirmation for removal of a user-installed app; system/self protected |
+| Existing shared location/network-state access | Optional Wi-Fi name/scan results; generic Network works without it |
 
-The broad Android permissions above are broader than the specific controls. They are not generic
-system-write endpoints. The ordinary UI keeps Android consent for pairing, app removal and other
-system-controlled confirmations. Unknown hardware/calibration interfaces are not guessed.
-
-After installing Advanced manually, the following previews the documented grants:
-
-```powershell
-python scripts/device.py --device <projector endpoint> grant-advanced
-```
-
-Add `--apply` before `grant-advanced` if you want these controls. It records each original grant and
-WRITE_SETTINGS app-op, grants the listed runtime/development permissions and verifies their states.
-It does not alter debugging, networking, calibration, clock values or Home. Usage access is optional
-and is not included in this grant command. Save its `.local/.../original.json` for precise undo.
-
-## Optional Settings Starter
-
-In Settings, Other settings, **ADB settings helper** is the one place for both: it shows whether this session is connected, lets you change its length or stop it, and has a **Settings Starter** row that opens the companion for start-after-reboot and pairing. The companion stays a separate app on purpose: it alone holds the network permission and the pairing identity, and the launcher keeps no INTERNET permission. Its settings are answered only to the computer shell, so the launcher cannot show or change them itself.
-
-Install the same-signed `CleanYourTV-Settings-Starter.apk` using the normal install script. The
-companion has INTERNET (loopback TLS ADB client only), ACCESS_NETWORK_STATE, RECEIVE_BOOT_COMPLETED,
-WRITE_SECURE_SETTINGS (only adb_wifi_enabled) and the custom signature permission. No root,
-device-admin, always-on remote server, computer ADB key import or generic command interface.
-
-Preview the initial setup:
+WRITE_SECURE_SETTINGS is broader than those two keys. The app code restricts itself to those keys;
+without the grant, selecting automatic time opens system date/time settings. No debugging, keyboard,
+locale, vendor property, network credential or arbitrary secure/global setting writes are present.
+The three WRITE_SETTINGS controls request normal app-specific access where available. If the firmware
+has no approval activity, this explicit optional setup records access first and uses ordinary ADB:
 
 ```powershell
-python scripts/setup-starter.py --device <projector endpoint> --enable-boot --brief-debugging
+python scripts/device.py --device <projector-endpoint> --apply grant-advanced
 ```
 
-Add `--setup` to perform it. This requires already-authorised paired Wireless debugging and verifies
-both installed APK hashes against `dist/`. It records original companion grant/preferences/trust,
-grants companion WRITE_SECURE_SETTINGS only if absent, pairs one companion-owned Keystore identity
-through Android's normal pairing protocol and verifies real local shell UID2000. Codes stay in
-memory/Binder. It preserves other paired computers and never disables authentication or expiry.
+Read the script before running it: it grants the listed optional runtime/settings access, records
+original permission/app-op states in `.local/`, and does not select Home or modify a setting value.
+You can instead leave access ungranted and use stock controls. Actual permission dialogs remain
+Android's own. At the end of setup disable debugging and revoke unused pairing/authorisation.
 
-The selected mode briefly enables paired Wireless debugging at boot, starts the existing typed helper
-through a local TLS connection, verifies a signed nonce/UID2000 attachment, then switches debugging
-off. This authenticated network debugging window is intentional and optional. The helper retains
-shell authority while debugging is off. It ends on reboot, launcher-process death, explicit Stop or
-selected expiry. Stop pauses recovery for the current boot. Jobs are bounded; no permanent polling
-watchdog. If trust expires, Wi-Fi consent changes or startup fails, normal pairing/consent may be needed.
-
-Verify after a normal reboot without pressing Start helper now: Settings > Other settings > Settings
-Starter should read Helper connected - Wireless debugging off. Confirm physical controls yourself.
-The companion is opened there, not as an extra app-grid tile. Ordinary computer-started helpers retain
-their debugging-off stop rule. `scripts/settings-helper.py --device ... --status` can inspect one while
-ADB is available; it cannot reconnect to a closed listener.
+[Recovery](RESTORE.md) restores exact original access from your private record. No permission makes
+every manufacturer API available; Advanced deliberately uses stock fallbacks for those controls.

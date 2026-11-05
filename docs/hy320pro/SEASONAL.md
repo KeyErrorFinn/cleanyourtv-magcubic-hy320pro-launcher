@@ -31,11 +31,8 @@ Easter. Wallpaper, dock band, pill icons, greeting and focus glow all follow the
 
 ![Appearance settings on the HY320 Pro, Advanced edition](appearance.png)
 
-Advanced edition: Settings, Other settings, Appearance. Seasonal themes sits under Look.
+Earlier full implementation: Settings, Other settings, Appearance. Seasonal themes sits under Look. The new helper-free edition retains this design; this older capture is not physical validation of the split.
 
-![ADB settings helper page](helper-page.jpg)
-
-Other settings now has one ADB settings helper entry: this session's status and controls, and Settings Starter for start-after-reboot.
 
 ## Choosing
 

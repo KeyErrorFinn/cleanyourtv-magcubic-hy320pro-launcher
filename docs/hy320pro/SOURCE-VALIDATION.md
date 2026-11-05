@@ -1,18 +1,22 @@
-# Current source validation
+# Edition split validation
 
-Repository publication check, 3 November 2026, starting from source commit `07be073`.
-No projector connection, installation, settings change or optical adjustment was performed.
+5 November 2026. Version 1.3.0, code 130; source prepared locally for owner review.
 
-- Basic: 246 JVM tests passed; release lint has no errors; signed release assembled.
-- Advanced: 445 JVM tests passed; release lint has no errors; signed release assembled.
-- Seven public-edition/installer boundary tests passed.
-- Settings Starter built and APK signature verification succeeded.
-- Both editions and the companion used the existing publisher signing identity.
-- Source/support files and newly added screenshots were reviewed for private identifiers.
+- Basic: 246 JVM tests, no failures; zero lint errors; signed release build passed.
+- Helper-free Advanced: 256 JVM tests, no failures; zero lint errors; signed release build passed.
+- Seven installer/edition boundary tests pass.
+- `python scripts/check-apks.py` verifies both final APK hashes, matching publisher signatures,
+  no INTERNET/CHANGE_CONFIGURATION, no settings-session/starter/recovery providers, no native
+  libraries, no pairing service names and no debugging-key writer strings in DEX.
+- Basic APK: 650,400 bytes. Advanced APK: 684,412 bytes.
+- Original publisher certificate retained; no key, pairing identity or private state included.
+- No projector connection, installation, calibration or debugging changes were performed.
 
-These checks do not establish physical correctness of every current feature. Prior owner-confirmed
-device behavior is recorded in [Compatibility](COMPATIBILITY.md); it must not be read as a fresh
-end-to-end verification of this source snapshot or of the newer firmware allowlist entry.
+The helper-enabled implementation is preserved as Ultimate on a separate local branch. No new
+GitHub release or upstream update is claimed here. Existing v1.0.1 assets are historical and do not
+represent helper-free Advanced. Build outputs are isolated in `dist/helper-free/`.
 
-Existing GitHub release tags and assets are preserved. The v1.0.1 prerelease is older than current
-source (version 1.2.0); this source update does not replace its binaries or silently move its tag.
+Physical verification of the new split remains pending. Check normal boot/Home, physical D-pad and
+Back, the eight sections and stock fallbacks, volume/mute/held repeat, Bluetooth/Wi-Fi scan and
+permissions, file picker, HDMI/streaming audio, standby/wake with debugging off. Source/package
+checks do not prove those behaviors. See COMPATIBILITY.md and EDITIONS.md for limits and migration.

@@ -19,7 +19,6 @@
 
 
     <queries>
-        <package android:name="local.hy320.helperstarter" />
         <!-- The Weather add-on's read-only provider, for the Home weather widget. -->
         <provider android:authorities="io.github.sumyabazar1.weather.provider" />
         <intent>

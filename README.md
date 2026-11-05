@@ -2,106 +2,75 @@
 
 <p align="center">
   <img src="assets/logo.png" alt="cleanyourtv-magcubic-hy320pro-launcher logo" width="180" />
-</p>
+# CleanYourTV for Magcubic HY320 Pro
 
-**Main project: launcher source, Basic/Advanced editions and downloads.**
-For upstream device-note submissions only, use the separate [contribution fork](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher-contrib).
+An Apple TV inspired Home based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv),
+with a dock, app library, expanding shortcuts and local appearance options.
+The default branch builds two editions that work with **debugging switched off after setup**.
 
-Implementation source for the [Magcubic HY320 Pro device setup](docs/device.md), based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv).
-Apple TV inspired Home with six dock slots, black background, expanding shortcuts, edge-to-edge app
-artwork and two editions. No root, firmware flashing or system-partition changes.
+| Edition | Home | Settings | Persistent ADB/helper |
+|---|---|---|---|
+| Basic | Custom Home; simple launcher preferences | Stock manufacturer settings | None |
+| Advanced | Same Home and appearance options | Eight styled sections; direct supported controls and stock-page fallbacks | None |
 
-| | Basic | Advanced |
-|---|---|---|
-| Restyled Home, dock, app library and animations | Yes | Yes |
-| HDMI status, casting and USB shortcuts | Yes, where supported | Yes, where supported |
-| Main Settings button | Manufacturer Settings | Integrated eight-section Settings |
-| Appearance configuration | Hold Settings, choose Launcher settings | Other settings, Appearance |
-| Integrated projection, audio, Bluetooth, network, language and time controls | No | Yes, subject to firmware authority |
-| Privileged settings grants or shell helper | None required | Explicit documented setup |
-| Optional local helper startup after reboot | No | Separate Settings Starter app |
-| Seasonal themes (New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween, Christmas) | Optional, off until you turn it on | In Appearance settings; Automatic by default |
-| Launcher INTERNET permission | None | None |
+Advanced keeps volume/mute, quiet hours, appearance, backup/restore of the look, Bluetooth search and
+paired-device listings, Wi-Fi status/scanning, application information and chosen-folder browsing.
+Projection adjustments, Bluetooth power/connection management, Wi-Fi configuration, manual clock,
+language, keyboard management, app administration and manufacturer maintenance use normal stock
+screens. Automatic time/time zone and three system preferences are optional direct controls with
+documented one-time access; they fall back to system settings when access is absent.
 
-**Start with Basic if you only want the Home design.** Advanced is for owners who want integrated
-controls and understand the permission/helper setup. Neither edition disables or uninstalls system apps.
-The stock launcher must remain installed and enabled.
+Basic remains the simple Home/stock-settings edition. Advanced retains the redesigned settings
+interface without a settings broker, local ADB transport, pairing client, native projector writer,
+debugging switch writer or startup companion. Neither APK declares INTERNET.
 
-![Home on the original tested HY320 Pro](docs/hy320pro/home.png)
+The helper-enabled full-control implementation is named **Ultimate** and is maintained separately
+on the [`ultimate` branch](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/tree/ultimate).
+It is not part of this branch's builds or setup. [Edition comparison and switching](docs/hy320pro/EDITIONS.md).
 
-Original on-device capture, before public edition packaging. Installed-app artwork belongs to its respective owners.
+![Home on the original tested projector](docs/hy320pro/home.png)
 
-## Compatibility
+Original development capture; current edition separation still needs physical verification.
+Installed app artwork belongs to its respective owners.
 
-The current source includes seasonal scenes, per-app focus colour, night mode, settings search,
-appearance backup/restore, an optional weather line and Advanced quiet hours. Weather requires a
-separately installed compatible add-on; it is not bundled here. The latest source is newer than the
-v1.0.1 prerelease downloads: build from source for these changes.
+## Device and setup
 
-Both editions and Settings Starter now recognise `Projector_20261014.163241` as well as the original
-build below. Recognition is an explicit firmware allowlist, not a claim that every control on the
-newer firmware has passed physical verification. See the [current source validation](docs/hy320pro/SOURCE-VALIDATION.md).
+Original observed unit: Magcubic HY320 Pro, Android 14 / SDK 34, `Projector_20260713.153921`,
+`rk3566_rgo`, `exdroid`, 32-bit ARM, about 1 GB RAM. Source also recognises
+`Projector_20261014.163241`; recognition does not establish equivalent physical verification.
+HY320, HY320 Mini, HY300 and HY300 Pro are not established compatible.
 
-Tested on **Magcubic HY320 Pro**, Android 14 / SDK 34, firmware
-`Projector_20260713.153921`, device `rk3566_rgo`, board `exdroid`, 32-bit ARM userland.
-The retail model name alone is insufficient. HY320, HY320 Mini, HY300 and HY300 Pro are not established
-compatible. Advanced refuses integrated controls on an unrecognised firmware/device/board.
-See [compatibility and verification](docs/hy320pro/COMPATIBILITY.md). [Seasonal themes](docs/hy320pro/SEASONAL.md) explains the holiday skins.
+1. Read the [device guide](docs/device.md) and [compatibility limits](docs/hy320pro/COMPATIBILITY.md).
+2. [Build from source](docs/hy320pro/BUILD.md). Current source is version 1.3.0; existing v1.0.1
+   prerelease assets predate this split and must not be described as helper-free Advanced.
+3. Follow [installation](docs/hy320pro/INSTALL.md), back up your own unit, install manually first,
+   test, then select Home separately. Keep stock MagcubicOS installed and enabled.
+4. Advanced: use the [permission guide](docs/hy320pro/PERMISSIONS.md) only for desired optional controls.
+5. Switch debugging off after setup, remove unused computer pairings and verify the used ports.
 
-The original Advanced implementation was verified on one physical unit, including optical adjustments
-and helper startup after reboot with Wireless debugging off. The new public edition split and signing
-configuration have build/static checks; they have not yet been installed on a second unit or physically
-retested as public release builds. See the release validation report for exact checks.
+No root, flashing, factory menu, system-partition modification, silent package disabling, Google
+services, streaming APKs, subscriptions, accounts or another owner's calibration are included.
+The ChromeCast shortcut opens separately installed AirScreen; it is not certified Chromecast built-in.
 
-## Get started
+## Appearance and recovery
 
-[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases) | [Device guide](docs/device.md) | [Basic profile](profiles/basic/README.md) | [Advanced profile](profiles/advanced/README.md)
+Default six-slot dock: YouTube, Netflix, Disney+, Play Store, Opera and App Store where installed.
+Missing applications are not installed automatically. Basic uses stock Settings and has launcher
+preferences on hold-Settings; Advanced uses Other settings → Appearance. Both share the package ID
+and signing identity, so only one edition installs at once.
 
+[Configuration](docs/CONFIGURATION.md) · [Basic profile](profiles/basic/README.md) ·
+[Advanced profile](profiles/advanced/README.md) · [Seasonal themes](docs/hy320pro/SEASONAL.md) ·
+[Restore](docs/hy320pro/RESTORE.md) · [Validation](docs/hy320pro/SOURCE-VALIDATION.md) ·
+[Publication checklist](docs/hy320pro/PUBLICATION.md)
 
-Run commands from the root of this repository. Only the HY320 Pro launcher, its companion and their supporting files are included.
+Current checks do not replace tests of the physical remote, projection, HDMI/audio, boot and wake.
+Backups are not firmware backups and do not guarantee recovery from boot failure.
 
+## Source
 
-1. Read [installation](docs/hy320pro/INSTALL.md), select an edition and verify your device.
-2. [Build from source](docs/hy320pro/BUILD.md), or inspect the matching source tag and release APK hashes.
-3. Back up your own unit, install manually first, then select Home separately.
-4. Advanced only: choose the [permissions and helper setup](docs/hy320pro/PERMISSIONS.md).
-5. Keep [recovery instructions](docs/hy320pro/RESTORE.md) and your private backup off the projector.
-
-Downloadable device APKs are provided through GitHub Releases, never the source tree. They contain no streaming
-subscriptions, Google services, AirScreen, third-party app APKs, personal accounts or copied calibration.
-Installed applications supply their own icons. Streaming/casting applications must be installed separately.
-The ChromeCast shortcut opens AirScreen; this is not certified Chromecast built-in.
-
-## Design and configuration
-
-Defaults: six columns, black background, a time-of-day greeting, the system clock format and a dock of
-YouTube, Netflix, Disney+, Play Store, Opera and App Store **only where those packages are installed**.
-No app is installed automatically. Missing dock apps follow the existing launcher fill behavior.
-Use the launcher appearance page or supported [configuration options](docs/CONFIGURATION.md); hold OK to
-reorder apps. Artwork fills tiles with cropping. Network name display is optional and needs location
-access on Android 14; a generic Network label works without it.
-
-Each user aligns their own projector. Never import another person's corner positions, zoom, orientation,
-wall presets, Wi-Fi credentials, accounts, ADB keys or backups.
-
-## Privacy and authority
-
-No analytics or telemetry were added. Advanced uses only fixed typed settings operations; it is not a
-generic root/shell terminal. The optional companion has INTERNET permission for a client connection to
-`127.0.0.1` using normal paired TLS ADB. It creates its own non-exportable AndroidKeyStore identity.
-With the selected optional startup mode, it briefly enables paired Wireless debugging at boot,
-confirms the helper and switches debugging off. That temporary interval exposes Android's authenticated
-ADB listener to the network; no authentication/expiry controls are disabled. Pairing can expire or be
-revoked. [Full permissions and lifecycle](docs/hy320pro/PERMISSIONS.md).
-
-## Source and attribution
-
-These device-specific implementations are maintained here; they are not part of the upstream reference launcher. Report the edition, Android SDK
-and firmware build, omit identifiers/accounts/network names, and explain what actually happened.
-Keep manufacturer package protection and per-device backups. Do not remove firmware guards to claim
-support for another board.
-
-Upstream launcher/tools: [MIT](LICENSE). Font licence: [Outfit OFL](FONT-LICENSE-OFL.txt).
-Pairing transport adapts Shizuku (Apache 2.0); pinned BoringSSL/Conscrypt dependencies and their licences
-are in [settings-starter/licenses](settings-starter/licenses). No manufacturer binaries are redistributed.
-Upstream documentation and reference launcher remain available in [CleanYourTV](https://github.com/Gathin23/cleanyourtv). See [source attribution](NOTICE.md) for provenance.
+CleanYourTV source: [MIT](LICENSE). Outfit font: [OFL](FONT-LICENSE-OFL.txt).
+[Other notices](NOTICE.md). No analytics or telemetry are added. Local settings and appearance
+backups remain on the device; browsing uses only the folder explicitly chosen by the user.
+The upstream [contribution fork](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher-contrib)
+contains only contribution documentation, not this implementation. Upstream has not approved a release.

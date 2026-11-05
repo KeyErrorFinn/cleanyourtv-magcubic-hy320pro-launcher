@@ -12,8 +12,7 @@ The build runs the selected edition's JVM tests and lint before assembling. Expl
 separately from software/static checks. UI/control changes need actual device screenshots and owner
 confirmation where optics, remote keys, audio or HDMI cannot be proved by screenshots.
 
-Preserve Basic's stock-settings route and minimal authority. Advanced changes must retain typed
-operations, exact-original-state recovery and clear permission scope. Never add root, factory-menu,
+Preserve Basic's stock-settings route and minimal authority. Advanced must stay helper-free, retain exact-original-state journals for its documented keys, and open stock settings for restricted operations. Do not import Ultimate helper, pairing or native projector writers into main. Never add root, factory-menu,
 system-partition/firmware changes, authentication bypasses or silent package disabling. Keep the stock
 launcher enabled. Do not disrupt the sole Bluetooth remote or network during unattended checks.
 

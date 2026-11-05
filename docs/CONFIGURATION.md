@@ -29,7 +29,7 @@ or streaming APK is created by the configuration.
 The existing ThemeProvider also supports an optional configuration overlay. An authorised device shell
 can write `content://com.gathin.tvhome.theme/config.json` using Android's `content write`, after backing
 up the previous file or recording its absence. It accepts supported theme paths, including local
-wallpaper images. Advanced helper/projection work must be finished before restarting/updating Home.
+wallpaper images. For an old helper-enabled installation, complete the edition-migration guide before updating Home.
 The default setup needs no overlay: profiles document the bundled layout. This repository does not
 ship the unrelated upstream theme library or its parent-checkout-dependent theme scripts.
 
