@@ -24,13 +24,13 @@ Remove-Item Env:CYTV_STORE_PASSWORD, Env:CYTV_KEY_PASSWORD
 ```
 
 Use `--edition basic` or `--edition ultimate` to build one. Both launchers intentionally share package
-`com.gathin.tvhome` and version code 120 so a same-signed edition switch can be a normal update, after
+`com.gathin.tvhome` and version code 130 so a same-signed edition switch can be a normal update, after
 stopping/turning off the helper. They cannot be installed side by side. Starter package:
 `local.hy320.helperstarter`. Keep both apps on the same signing key.
 
 The script extracts the actual public certificate, pins it into the Ultimate helper and companion,
 runs JVM tests and lint for the chosen editions and builds signed APKs. Ultimate also builds the
-companion from pinned SHA256-checked Maven dependencies. Outputs and hashes go into ignored `dist/`.
+companion from pinned SHA256-checked Maven dependencies. Outputs and hashes go into ignored `dist/ultimate/`.
 No device is contacted. Native code is compiled from source; no device vendor library is copied.
 
 Independent builders use their own key. That build cannot update an existing installation signed by someone

@@ -1,18 +1,16 @@
-# Current source validation
+# Ultimate branch validation
 
-Repository publication check, 3 November 2026, starting from source commit `07be073`.
-No projector connection, installation, settings change or optical adjustment was performed.
+5 November 2026. Ultimate is the renamed full-control edition on the separate `ultimate` branch.
 
-- Basic: 246 JVM tests passed; release lint has no errors; signed release assembled.
-- Ultimate: 445 JVM tests passed; release lint has no errors; signed release assembled.
-- Seven public-edition/installer boundary tests passed.
-- Settings Starter built and APK signature verification succeeded.
-- Both editions and the companion used the existing publisher signing identity.
-- Source/support files and newly added screenshots were reviewed for private identifiers.
+- 445 JVM tests passed; zero release lint errors; signed release build succeeded.
+- Seven installer/signature boundary tests passed.
+- All 73 original full-settings source/native/manifest files compare byte-for-byte with their
+  pre-split `app/src/advanced` counterparts; only the source directory/flavor, label and delivery names
+  changed. The companion additionally has an Ultimate label and version 1.3.0 / code 130.
+- Ultimate APK: 844,297 bytes. Optional Ultimate Settings Starter APK: 1,590,111 bytes.
+- Delivery hashes verified; the original publisher certificate is retained.
+- Outputs are isolated in `dist/ultimate/`; these do not belong to the helper-free main branch.
 
-These checks do not establish physical correctness of every current feature. Prior owner-confirmed
-device behavior is recorded in [Compatibility](COMPATIBILITY.md); it must not be read as a fresh
-end-to-end verification of this source snapshot or of the newer firmware allowlist entry.
-
-Existing GitHub release tags and assets are preserved. The v1.0.1 prerelease is older than current
-source (version 1.2.0); this source update does not replace its binaries or silently move its tag.
+No projector was connected or modified, and these renamed build artifacts have not received a
+fresh physical run. Existing source tags/releases are preserved. No repository push, release or
+maintainer message has occurred for this split; it is prepared locally for the owner's approval.

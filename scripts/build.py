@@ -36,7 +36,7 @@ def main():
     wrapper = ROOT/('gradlew.bat' if os.name == 'nt' else 'gradlew')
     run(wrapper, '--no-daemon', '-PreleaseCertificateSha256='+pin, *tasks, '--console=plain',
         cwd=ROOT, env=env)
-    dist = ROOT/'dist'; dist.mkdir(exist_ok=True)
+    dist = ROOT/'dist'/'ultimate'; dist.mkdir(parents=True,exist_ok=True)
     version = re.search(r"versionName '([^']+)'", (ROOT/'app'/'build.gradle').read_text(encoding='utf-8')).group(1)
     artifacts = {}
     def collect(source, name):
@@ -48,7 +48,7 @@ def main():
                 f'CleanYourTV-HY320Pro-{edition.title()}.apk')
     if 'ultimate' in editions:
         run(sys.executable, ROOT/'settings-starter/build.py', env=env)
-        collect(ROOT/'settings-starter/CleanYourTV-Settings-Starter.apk','CleanYourTV-Settings-Starter.apk')
+        collect(ROOT/'settings-starter/CleanYourTV-Settings-Starter.apk','CleanYourTV-Ultimate-Settings-Starter.apk')
     (dist/'signing-certificate.sha256').write_text(pin+'\n',encoding='ascii')
     (dist/'release.json').write_text(json.dumps({'version':version,'certificate_sha256':pin,
         'firmware':'Projector_20260713.153921','artifacts':artifacts},indent=2)+'\n')

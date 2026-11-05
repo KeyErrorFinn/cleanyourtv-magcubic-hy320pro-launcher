@@ -109,3 +109,5 @@ Upstream launcher/tools: [MIT](LICENSE). Font licence: [Outfit OFL](FONT-LICENSE
 Pairing transport adapts Shizuku (Apache 2.0); pinned BoringSSL/Conscrypt dependencies and their licences
 are in [settings-starter/licenses](settings-starter/licenses). No manufacturer binaries are redistributed.
 Upstream documentation and reference launcher remain available in [CleanYourTV](https://github.com/Gathin23/cleanyourtv). See [source attribution](NOTICE.md) for provenance.
+
+Ultimate builds use `python scripts/build.py --edition ultimate --keystore <private-key> --alias <alias>`. Its APK is `dist/ultimate/CleanYourTV-HY320Pro-Ultimate.apk`; the optional companion is `CleanYourTV-Ultimate-Settings-Starter.apk`. These are separate from default-branch Basic/Advanced outputs.
