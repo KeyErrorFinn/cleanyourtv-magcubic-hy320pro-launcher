@@ -1,6 +1,6 @@
 # Ultimate branch validation
 
-5 November 2026. Ultimate is the renamed full-control edition on the separate `ultimate` branch.
+5 November 2026. Ultimate is the renamed full-control edition on the separate `ultimate-integrated-settings-adb-helper` branch.
 
 - 445 JVM tests passed; zero release lint errors; signed release build succeeded.
 - Seven installer/signature boundary tests passed.
@@ -12,5 +12,4 @@
 - Outputs are isolated in `dist/ultimate/`; these do not belong to the helper-free main branch.
 
 No projector was connected or modified, and these renamed build artifacts have not received a
-fresh physical run. Existing source tags/releases are preserved. No repository push, release or
-maintainer message has occurred for this split; it is prepared locally for the owner's approval.
+fresh physical run. Existing source tags/releases are preserved. Publication does not establish physical-device verification of the renamed builds.
