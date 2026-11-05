@@ -41,8 +41,8 @@ Original observed unit: Magcubic HY320 Pro, Android 14 / SDK 34, `Projector_2026
 HY320, HY320 Mini, HY300 and HY300 Pro are not established compatible.
 
 1. Read the [device guide](docs/device.md) and [compatibility limits](docs/hy320pro/COMPATIBILITY.md).
-2. [Build from source](docs/hy320pro/BUILD.md). Current source is version 1.3.0; existing v1.0.1
-   prerelease assets predate this split and must not be described as helper-free Advanced.
+2. [Build from source](docs/hy320pro/BUILD.md), or use the [1.3.0 helper-free prerelease](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases/tag/v1.3.0-helper-free).
+   Physical checks of the new edition split remain pending. Older v1.0.1 assets predate this split.
 3. Follow [installation](docs/hy320pro/INSTALL.md), back up your own unit, install manually first,
    test, then select Home separately. Keep stock MagcubicOS installed and enabled.
 4. Advanced: use the [permission guide](docs/hy320pro/PERMISSIONS.md) only for desired optional controls.
