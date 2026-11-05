@@ -1,7 +1,7 @@
-# CleanYourTV for Magcubic HY320 Pro
-
 <p align="center">
   <img src="assets/logo.png" alt="cleanyourtv-magcubic-hy320pro-launcher logo" width="180" />
+</p>
+
 # CleanYourTV for Magcubic HY320 Pro
 
 An Apple TV inspired Home based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv),
@@ -25,7 +25,7 @@ interface without a settings broker, local ADB transport, pairing client, native
 debugging switch writer or startup companion. Neither APK declares INTERNET.
 
 The helper-enabled full-control implementation is named **Ultimate** and is maintained separately
-on the [`ultimate` branch](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/tree/ultimate).
+on the [`ultimate-integrated-settings-adb-helper` branch](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/tree/ultimate-integrated-settings-adb-helper).
 It is not part of this branch's builds or setup. [Edition comparison and switching](docs/hy320pro/EDITIONS.md).
 
 ![Home on the original tested projector](docs/hy320pro/home.png)

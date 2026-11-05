@@ -1,6 +1,6 @@
 # Edition split validation
 
-5 November 2026. Version 1.3.0, code 130; source prepared locally for owner review.
+5 November 2026. Version 1.3.0, code 130; source publication validation.
 
 - Basic: 246 JVM tests, no failures; zero lint errors; signed release build passed.
 - Helper-free Advanced: 256 JVM tests, no failures; zero lint errors; signed release build passed.
@@ -12,8 +12,7 @@
 - Original publisher certificate retained; no key, pairing identity or private state included.
 - No projector connection, installation, calibration or debugging changes were performed.
 
-The helper-enabled implementation is preserved as Ultimate on a separate local branch. No new
-GitHub release or upstream update is claimed here. Existing v1.0.1 assets are historical and do not
+The helper-enabled implementation is preserved as Ultimate on a separate branch. Publication is separate from physical-device verification. Existing v1.0.1 assets are historical and do not
 represent helper-free Advanced. Build outputs are isolated in `dist/helper-free/`.
 
 Physical verification of the new split remains pending. Check normal boot/Home, physical D-pad and

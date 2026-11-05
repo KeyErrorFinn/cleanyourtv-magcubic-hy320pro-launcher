@@ -1,7 +1,7 @@
 # Coding-agent instructions
 
 Read README.md, CONTRIBUTING.md and docs/hy320pro/EDITIONS.md. Main contains simple Basic and
-helper-free styled Advanced. The separate ultimate branch preserves full settings/helper source.
+helper-free styled Advanced. The separate ultimate-integrated-settings-adb-helper branch preserves full settings/helper source.
 
 - Reuse the existing native Java launcher and styled settings; do not create an unrelated app.
 - No helper, pairing client, native projector writer, session/starter provider or INTERNET in main.
