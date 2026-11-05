@@ -11,7 +11,7 @@ spec=importlib.util.spec_from_file_location('device',ROOT/'scripts/device.py')
 device=importlib.util.module_from_spec(spec);spec.loader.exec_module(device)
 
 class ReleaseTests(unittest.TestCase):
-    def test_basic_has_no_advanced_permissions_or_providers(self):
+    def test_basic_has_no_ultimate_permissions_or_providers(self):
         main=ET.parse(ROOT/'app/src/main/AndroidManifest.xml').getroot()
         permissions={x.get(ANDROID+'name') for x in main.findall('uses-permission')}
         for permission in ['WRITE_SECURE_SETTINGS','WRITE_SETTINGS','CHANGE_CONFIGURATION','BLUETOOTH_CONNECT','BLUETOOTH_SCAN']:
@@ -19,12 +19,12 @@ class ReleaseTests(unittest.TestCase):
         providers={x.get(ANDROID+'name') for x in main.find('application').findall('provider')}
         self.assertFalse({'.SettingsSessionProvider','.StarterStatusProvider','.ProjectionRecoveryProvider'} & providers)
 
-    def test_shell_helper_source_only_in_advanced(self):
+    def test_shell_helper_source_only_in_ultimate(self):
         self.assertFalse((ROOT/'app/src/main/java/com/gathin/tvhome/ShellSettingsSession.java').exists())
-        self.assertTrue((ROOT/'app/src/advanced/java/com/gathin/tvhome/ShellSettingsSession.java').exists())
+        self.assertTrue((ROOT/'app/src/ultimate/java/com/gathin/tvhome/ShellSettingsSession.java').exists())
 
     def test_starter_confirmation_remains_signature_protected(self):
-        root=ET.parse(ROOT/'app/src/advanced/AndroidManifest.xml').getroot()
+        root=ET.parse(ROOT/'app/src/ultimate/AndroidManifest.xml').getroot()
         permission=root.find('permission')
         self.assertEqual(permission.get(ANDROID+'protectionLevel'),'signature')
         provider=next(x for x in root.find('application').findall('provider') if x.get(ANDROID+'name')=='.StarterStatusProvider')

@@ -1,11 +1,11 @@
-# Advanced permissions and helper
+# Ultimate permissions and helper
 
 Basic has no integrated settings backend, secure/system settings write permissions, Bluetooth-control
 permissions, native settings bridge, starter status provider or shell-helper entry point. Optional
 location access is only for the Wi-Fi-name label; declining it leaves a generic Network shortcut.
 Both launchers are offline and request no INTERNET permission.
 
-Advanced uses standard permissions where possible and the reviewed manufacturer interface where
+Ultimate uses standard permissions where possible and the reviewed manufacturer interface where
 necessary. Permission grants do not make it a system app or root. The code exposes typed actions,
 not an arbitrary command runner.
 
@@ -25,13 +25,13 @@ The broad Android permissions above are broader than the specific controls. They
 system-write endpoints. The ordinary UI keeps Android consent for pairing, app removal and other
 system-controlled confirmations. Unknown hardware/calibration interfaces are not guessed.
 
-After installing Advanced manually, the following previews the documented grants:
+After installing Ultimate manually, the following previews the documented grants:
 
 ```powershell
-python scripts/device.py --device <projector endpoint> grant-advanced
+python scripts/device.py --device <projector endpoint> grant-ultimate
 ```
 
-Add `--apply` before `grant-advanced` if you want these controls. It records each original grant and
+Add `--apply` before `grant-ultimate` if you want these controls. It records each original grant and
 WRITE_SETTINGS app-op, grants the listed runtime/development permissions and verifies their states.
 It does not alter debugging, networking, calibration, clock values or Home. Usage access is optional
 and is not included in this grant command. Save its `.local/.../original.json` for precise undo.

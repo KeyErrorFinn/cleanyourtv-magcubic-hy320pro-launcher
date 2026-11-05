@@ -16,7 +16,7 @@ def run(*args, **kwargs):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--edition', choices=['basic', 'advanced', 'both'], default='both')
+    parser.add_argument('--edition', choices=['basic', 'ultimate', 'both'], default='both')
     parser.add_argument('--keystore', type=Path, required=True)
     parser.add_argument('--alias', required=True)
     args = parser.parse_args()
@@ -30,7 +30,7 @@ def main():
         '-alias', args.alias, '-storepass:env', 'CYTV_STORE_PASSWORD'])
     pin = hashlib.sha256(certificate).hexdigest()
     env = dict(os.environ, CYTV_KEYSTORE=str(key), CYTV_KEY_ALIAS=args.alias, CYTV_CERT_SHA256=pin)
-    editions = ['basic', 'advanced'] if args.edition == 'both' else [args.edition]
+    editions = ['basic', 'ultimate'] if args.edition == 'both' else [args.edition]
     tasks = [task+edition.title()+'Release'+suffix for edition in editions
              for task, suffix in [('test','UnitTest'), ('lint',''), ('assemble','')]]
     wrapper = ROOT/('gradlew.bat' if os.name == 'nt' else 'gradlew')
@@ -46,7 +46,7 @@ def main():
     for edition in editions:
         collect(ROOT/f'app/build/outputs/apk/{edition}/release/app-{edition}-release.apk',
                 f'CleanYourTV-HY320Pro-{edition.title()}.apk')
-    if 'advanced' in editions:
+    if 'ultimate' in editions:
         run(sys.executable, ROOT/'settings-starter/build.py', env=env)
         collect(ROOT/'settings-starter/CleanYourTV-Settings-Starter.apk','CleanYourTV-Settings-Starter.apk')
     (dist/'signing-certificate.sha256').write_text(pin+'\n',encoding='ascii')

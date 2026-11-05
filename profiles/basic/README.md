@@ -1,6 +1,6 @@
 # Magcubic HY320 Pro - Basic
 
-Settings opens the normal manufacturer pages. No Advanced settings helper or privileged settings grants are needed.
+Settings opens the normal manufacturer pages. No Ultimate settings helper or privileged settings grants are needed.
 
 - [Main device guide](../../docs/device.md)
 - [Installation and updates](../../docs/hy320pro/INSTALL.md)

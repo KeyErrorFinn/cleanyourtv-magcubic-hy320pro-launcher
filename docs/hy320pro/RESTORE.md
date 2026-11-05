@@ -22,7 +22,7 @@ originally used that component. Your backup's home.txt/original.json records you
 To restore a different recorded handler, review it, then use `cmd package set-home-activity --user 0`
 with that exact component. Confirm Home physically and after normal reboot.
 
-## Undo Advanced access/helper
+## Undo Ultimate access/helper
 
 1. Finish or restore any active projection transaction; cancel timed shutdown. Keep current calibration
    unless intentionally using that control's recorded Restore original action. Wall presets are personal.

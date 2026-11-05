@@ -1,17 +1,21 @@
-# CleanYourTV for Magcubic HY320 Pro
-
 <p align="center">
   <img src="assets/logo.png" alt="cleanyourtv-magcubic-hy320pro-launcher logo" width="180" />
 </p>
 
-**Main project: launcher source, Basic/Advanced editions and downloads.**
+# Ultimate edition branch
+
+This branch preserves the full projector-control implementation and optional paired-ADB helper. For Basic and helper-free Advanced, use the default `main` branch. This branch is separate from the upstream helper-free contribution.
+
+# CleanYourTV for Magcubic HY320 Pro
+
+**Main project: launcher source, Basic/Ultimate editions and downloads.**
 For upstream device-note submissions only, use the separate [contribution fork](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher-contrib).
 
 Implementation source for the [Magcubic HY320 Pro device setup](docs/device.md), based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv).
 Apple TV inspired Home with six dock slots, black background, expanding shortcuts, edge-to-edge app
 artwork and two editions. No root, firmware flashing or system-partition changes.
 
-| | Basic | Advanced |
+| | Basic | Ultimate |
 |---|---|---|
 | Restyled Home, dock, app library and animations | Yes | Yes |
 | HDMI status, casting and USB shortcuts | Yes, where supported | Yes, where supported |
@@ -23,7 +27,7 @@ artwork and two editions. No root, firmware flashing or system-partition changes
 | Seasonal themes (New Year, Valentine's Day, St. Patrick's Day, Easter, Halloween, Christmas) | Optional, off until you turn it on | In Appearance settings; Automatic by default |
 | Launcher INTERNET permission | None | None |
 
-**Start with Basic if you only want the Home design.** Advanced is for owners who want integrated
+**Start with Basic if you only want the Home design.** Ultimate is for owners who want integrated
 controls and understand the permission/helper setup. Neither edition disables or uninstalls system apps.
 The stock launcher must remain installed and enabled.
 
@@ -34,7 +38,7 @@ Original on-device capture, before public edition packaging. Installed-app artwo
 ## Compatibility
 
 The current source includes seasonal scenes, per-app focus colour, night mode, settings search,
-appearance backup/restore, an optional weather line and Advanced quiet hours. Weather requires a
+appearance backup/restore, an optional weather line and Ultimate quiet hours. Weather requires a
 separately installed compatible add-on; it is not bundled here. The latest source is newer than the
 v1.0.1 prerelease downloads: build from source for these changes.
 
@@ -45,17 +49,17 @@ newer firmware has passed physical verification. See the [current source validat
 Tested on **Magcubic HY320 Pro**, Android 14 / SDK 34, firmware
 `Projector_20260713.153921`, device `rk3566_rgo`, board `exdroid`, 32-bit ARM userland.
 The retail model name alone is insufficient. HY320, HY320 Mini, HY300 and HY300 Pro are not established
-compatible. Advanced refuses integrated controls on an unrecognised firmware/device/board.
+compatible. Ultimate refuses integrated controls on an unrecognised firmware/device/board.
 See [compatibility and verification](docs/hy320pro/COMPATIBILITY.md). [Seasonal themes](docs/hy320pro/SEASONAL.md) explains the holiday skins.
 
-The original Advanced implementation was verified on one physical unit, including optical adjustments
+The original Ultimate implementation was verified on one physical unit, including optical adjustments
 and helper startup after reboot with Wireless debugging off. The new public edition split and signing
 configuration have build/static checks; they have not yet been installed on a second unit or physically
 retested as public release builds. See the release validation report for exact checks.
 
 ## Get started
 
-[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases) | [Device guide](docs/device.md) | [Basic profile](profiles/basic/README.md) | [Advanced profile](profiles/advanced/README.md)
+[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases) | [Device guide](docs/device.md) | [Basic profile](profiles/basic/README.md) | [Ultimate profile](profiles/ultimate/README.md)
 
 
 Run commands from the root of this repository. Only the HY320 Pro launcher, its companion and their supporting files are included.
@@ -64,7 +68,7 @@ Run commands from the root of this repository. Only the HY320 Pro launcher, its 
 1. Read [installation](docs/hy320pro/INSTALL.md), select an edition and verify your device.
 2. [Build from source](docs/hy320pro/BUILD.md), or inspect the matching source tag and release APK hashes.
 3. Back up your own unit, install manually first, then select Home separately.
-4. Advanced only: choose the [permissions and helper setup](docs/hy320pro/PERMISSIONS.md).
+4. Ultimate only: choose the [permissions and helper setup](docs/hy320pro/PERMISSIONS.md).
 5. Keep [recovery instructions](docs/hy320pro/RESTORE.md) and your private backup off the projector.
 
 Downloadable device APKs are provided through GitHub Releases, never the source tree. They contain no streaming
@@ -86,7 +90,7 @@ wall presets, Wi-Fi credentials, accounts, ADB keys or backups.
 
 ## Privacy and authority
 
-No analytics or telemetry were added. Advanced uses only fixed typed settings operations; it is not a
+No analytics or telemetry were added. Ultimate uses only fixed typed settings operations; it is not a
 generic root/shell terminal. The optional companion has INTERNET permission for a client connection to
 `127.0.0.1` using normal paired TLS ADB. It creates its own non-exportable AndroidKeyStore identity.
 With the selected optional startup mode, it briefly enables paired Wireless debugging at boot,

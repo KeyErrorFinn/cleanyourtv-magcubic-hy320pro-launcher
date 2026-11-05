@@ -1,4 +1,4 @@
-# Magcubic HY320 Pro - Advanced
+# Magcubic HY320 Pro - Ultimate
 
 Settings opens the integrated eight-section interface. Its additional permissions and optional Settings Starter are separate setup steps.
 
@@ -8,6 +8,6 @@ Settings opens the integrated eight-section interface. Its additional permission
 - [Restore stock Home and undo access](../../docs/hy320pro/RESTORE.md)
 - [Configuration](config.json): six-slot dock, black background, greeting and installed casting/USB shortcuts. The clock follows the system.
 
-APK: `CleanYourTV-HY320Pro-Advanced.apk`. The configuration file controls appearance; it does not select the APK edition or grant authority. Both editions share the same package ID and cannot be installed side by side.
+APK: `CleanYourTV-HY320Pro-Ultimate.apk`. The configuration file controls appearance; it does not select the APK edition or grant authority. Both editions share the same package ID and cannot be installed side by side.
 
 The APK includes this default arrangement. Only change/push the optional theme configuration if you want to override it. Rebuilding the launcher applies edited defaults. Finish projection operations and stop the helper before updating it. Do not copy someone else's calibration, presets, account or network state.

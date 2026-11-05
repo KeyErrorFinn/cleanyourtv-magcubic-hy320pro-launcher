@@ -4,7 +4,7 @@ Repository publication check, 3 November 2026, starting from source commit `07be
 No projector connection, installation, settings change or optical adjustment was performed.
 
 - Basic: 246 JVM tests passed; release lint has no errors; signed release assembled.
-- Advanced: 445 JVM tests passed; release lint has no errors; signed release assembled.
+- Ultimate: 445 JVM tests passed; release lint has no errors; signed release assembled.
 - Seven public-edition/installer boundary tests passed.
 - Settings Starter built and APK signature verification succeeded.
 - Both editions and the companion used the existing publisher signing identity.

@@ -23,13 +23,13 @@ python scripts/build.py --edition both --keystore "$HOME\cleanyourtv-release.jks
 Remove-Item Env:CYTV_STORE_PASSWORD, Env:CYTV_KEY_PASSWORD
 ```
 
-Use `--edition basic` or `--edition advanced` to build one. Both launchers intentionally share package
+Use `--edition basic` or `--edition ultimate` to build one. Both launchers intentionally share package
 `com.gathin.tvhome` and version code 120 so a same-signed edition switch can be a normal update, after
 stopping/turning off the helper. They cannot be installed side by side. Starter package:
 `local.hy320.helperstarter`. Keep both apps on the same signing key.
 
-The script extracts the actual public certificate, pins it into the Advanced helper and companion,
-runs JVM tests and lint for the chosen editions and builds signed APKs. Advanced also builds the
+The script extracts the actual public certificate, pins it into the Ultimate helper and companion,
+runs JVM tests and lint for the chosen editions and builds signed APKs. Ultimate also builds the
 companion from pinned SHA256-checked Maven dependencies. Outputs and hashes go into ignored `dist/`.
 No device is contacted. Native code is compiled from source; no device vendor library is copied.
 
@@ -44,4 +44,4 @@ variations. Check source tag, tool versions, APK hash and signing certificate to
 
 ## Source lineage and repository layout
 
-This standalone project preserves the HY320 implementation derived from CleanYourTV commit `eb0131a3`, with the device-specific changes previously published in the contribution fork. Both editions share `app/src/main`; their settings implementations live in `app/src/basic` and `app/src/advanced`. The companion is in `settings-starter/`. No parent checkout or unrelated upstream directory is required. Run all documented commands from this repository root. See NOTICE.md for exact provenance and licences.
+This standalone project preserves the HY320 implementation derived from CleanYourTV commit `eb0131a3`, with the device-specific changes previously published in the contribution fork. Both editions share `app/src/main`; their settings implementations live in `app/src/basic` and `app/src/ultimate`. The companion is in `settings-starter/`. No parent checkout or unrelated upstream directory is required. Run all documented commands from this repository root. See NOTICE.md for exact provenance and licences.

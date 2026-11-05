@@ -51,15 +51,15 @@ Place APKs and their adjacent `.sha256` files in `dist/` (or build them there). 
 python scripts/device.py --device <projector endpoint> install --apk dist/CleanYourTV-HY320Pro-Basic.apk
 ```
 
-Add `--apply` before `install` to actually install. Advanced uses
-`dist/CleanYourTV-HY320Pro-Advanced.apk`. The script backs up, performs ordinary `adb -s ... install -r`,
+Add `--apply` before `install` to actually install. Ultimate uses
+`dist/CleanYourTV-HY320Pro-Ultimate.apk`. The script backs up, performs ordinary `adb -s ... install -r`,
 and verifies installed APK bytes. It never changes Home, grants access or disables packages. Signature,
 SDK/verifier/storage errors must be investigated as reported; never disable verification to force it.
 
 Open the installed Home app from the stock app list. Check the layout/app grid and physical remote.
 Basic Settings opens the stock manufacturer page; hold Settings and choose Launcher settings for
-Home appearance. Advanced opens the integrated eight-section page. Install/grant/configure its helper
-only if you choose Advanced; follow [PERMISSIONS.md](PERMISSIONS.md).
+Home appearance. Ultimate opens the integrated eight-section page. Install/grant/configure its helper
+only if you choose Ultimate; follow [PERMISSIONS.md](PERMISSIONS.md).
 
 ## Select Home separately
 
@@ -75,10 +75,10 @@ then reboot normally and confirm Home, projector controls and used features stil
 
 ## Updates and edition switches
 
-Use the same publisher/signing certificate. In Advanced, finish any projection operation, cancel any
+Use the same publisher/signing certificate. In Ultimate, finish any projection operation, cancel any
 scheduled shutdown, turn off Settings Starter's Start after reboot, then Stop helper. Re-enable paired
-Wireless debugging normally and use the installation command. Install/update both Advanced apps from
-the same release; redo starter setup only as documented. Switching to Basic requires no Advanced grants
+Wireless debugging normally and use the installation command. Install/update both Ultimate apps from
+the same release; redo starter setup only as documented. Switching to Basic requires no Ultimate grants
 or starter; disable its startup, stop it and remove it through the normal app UI if no longer wanted.
 Appearance preferences normally survive a same-signed update; UI and app-specific authority can differ.
 
@@ -89,7 +89,7 @@ no longer wanted, reboot normally, and check every previously used port from a n
 Use `python scripts/check-adb-port.py --host <projector ip> --port <previous port>` for each previously used endpoint. Refusal is evidence for that endpoint. Timeout/routing/local permission errors
 are inconclusive. `adb disconnect` only disconnects the client.
 
-Advanced optional automatic helper: use the explicitly selected brief-window mode described in
+Ultimate optional automatic helper: use the explicitly selected brief-window mode described in
 PERMISSIONS.md. Keep the companion's own pairing while using that feature; revoke unneeded computer
 pairings separately. Confirm live Helper connected - Wireless debugging off after reboot. Recheck USB
 peripherals/network transport if debugging affected them. A closed port does not certify the firmware.

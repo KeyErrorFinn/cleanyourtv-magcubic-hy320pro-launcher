@@ -85,7 +85,7 @@ def main():
     sub=p.add_subparsers(dest='action',required=True)
     sub.add_parser('inspect');sub.add_parser('backup')
     install=sub.add_parser('install');install.add_argument('--apk',type=Path,required=True)
-    sub.add_parser('grant-advanced')
+    sub.add_parser('grant-ultimate')
     home=sub.add_parser('home');home.add_argument('--stock',action='store_true')
     restore=sub.add_parser('restore-access');restore.add_argument('--record',type=Path,required=True)
     a=p.parse_args();d=Device(a.device);d.guard()
@@ -107,9 +107,9 @@ def main():
         remote=d.shell('pm path '+package).splitlines()[0].removeprefix('package:')
         if d.shell('sha256sum '+shlex.quote(remote)).split()[0]!=expected: raise RuntimeError('Installed hash mismatch')
         print('Installed and hash-verified only. No grants, Home selection or package disabling.');return
-    if a.action=='grant-advanced':
+    if a.action=='grant-ultimate':
         dump=d.shell('dumpsys package '+PACKAGE)
-        if 'com.gathin.tvhome.settings-session' not in dump: raise RuntimeError('Advanced edition must be installed')
+        if 'com.gathin.tvhome.settings-session' not in dump: raise RuntimeError('Ultimate edition must be installed')
         backup(d)
         for permission in GRANTS:
             full='android.permission.'+permission;d.shell('pm grant --user 0 '+PACKAGE+' '+full)
@@ -118,7 +118,7 @@ def main():
         d.shell('cmd appops set '+PACKAGE+' WRITE_SETTINGS allow')
         if not re.search(r'WRITE_SETTINGS:\s*allow',d.shell('cmd appops get '+PACKAGE+' WRITE_SETTINGS')):
             raise RuntimeError('WRITE_SETTINGS access not confirmed')
-        print('Documented Advanced grants verified. Original access states saved; no calibration/debugging/network change.');return
+        print('Documented Ultimate grants verified. Original access states saved; no calibration/debugging/network change.');return
     if a.action=='home':
         backup(d);component=STOCK if a.stock else PACKAGE+'/.MainActivity'
         d.shell('cmd package set-home-activity --user 0 '+component)

@@ -1,6 +1,6 @@
 # Contributing to HY320 Pro Launcher
 
-This project maintains Basic and Advanced editions for the specifically verified HY320 Pro firmware.
+This project maintains Basic and Ultimate editions for the specifically verified HY320 Pro firmware.
 The general CleanYourTV reference launcher is maintained [upstream](https://github.com/Gathin23/cleanyourtv).
 
 Describe the edition, firmware/build, SDK and observed behavior. Omit private network/device/account
@@ -12,7 +12,7 @@ The build runs the selected edition's JVM tests and lint before assembling. Expl
 separately from software/static checks. UI/control changes need actual device screenshots and owner
 confirmation where optics, remote keys, audio or HDMI cannot be proved by screenshots.
 
-Preserve Basic's stock-settings route and minimal authority. Advanced changes must retain typed
+Preserve Basic's stock-settings route and minimal authority. Ultimate changes must retain typed
 operations, exact-original-state recovery and clear permission scope. Never add root, factory-menu,
 system-partition/firmware changes, authentication bypasses or silent package disabling. Keep the stock
 launcher enabled. Do not disrupt the sole Bluetooth remote or network during unattended checks.

@@ -29,9 +29,9 @@ Christmas. The HDMI indicator stays on the Inputs pill in every season.
 
 Easter. Wallpaper, dock band, pill icons, greeting and focus glow all follow the holiday.
 
-![Appearance settings on the HY320 Pro, Advanced edition](appearance.png)
+![Appearance settings on the HY320 Pro, Ultimate edition](appearance.png)
 
-Advanced edition: Settings, Other settings, Appearance. Seasonal themes sits under Look.
+Ultimate edition: Settings, Other settings, Appearance. Seasonal themes sits under Look.
 
 ![ADB settings helper page](helper-page.jpg)
 
@@ -45,7 +45,7 @@ Other settings now has one ADB settings helper entry: this session's status and 
 | **Off** | No seasonal skin. |
 | **Always &lt;holiday&gt;** | That holiday's skin stays until you change it, whatever the date. |
 
-**Advanced edition:** Settings, Other settings, Appearance, **Seasonal themes**. It defaults to **Automatic**. Home updates when
+**Ultimate edition:** Settings, Other settings, Appearance, **Seasonal themes**. It defaults to **Automatic**. Home updates when
 you leave Settings.
 
 **Basic edition:** it is an optional extra and **off by default**. Settings opens the manufacturer pages, so there is
@@ -54,7 +54,7 @@ no menu; turn it on by editing the default or pushing a theme.
 - In a build of your own, set `seasonal_mode` in `app/src/main/res/values/config.xml` to `auto` or a holiday name.
 - Or put `"seasonal": "auto"` (or `"christmas"`, and so on) in a theme's `config.json`.
 
-A saved Settings choice (Advanced) beats the theme, and the theme beats `config.xml`. An unrecognised value is
+A saved Settings choice (Ultimate) beats the theme, and the theme beats `config.xml`. An unrecognised value is
 ignored. A festival a theme names itself (`"festival"`, for example Diwali, with its end date) still wins while it
 runs.
 
