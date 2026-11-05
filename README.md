@@ -59,7 +59,7 @@ retested as public release builds. See the release validation report for exact c
 
 ## Get started
 
-[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases) | [Device guide](docs/device.md) | [Basic profile](profiles/basic/README.md) | [Ultimate profile](profiles/ultimate/README.md)
+[Download releases](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases/tag/v1.3.0-ultimate-adb-helper) | [Device guide](docs/device.md) | [Basic profile](profiles/basic/README.md) | [Ultimate profile](profiles/ultimate/README.md)
 
 
 Run commands from the root of this repository. Only the HY320 Pro launcher, its companion and their supporting files are included.
@@ -111,3 +111,5 @@ are in [settings-starter/licenses](settings-starter/licenses). No manufacturer b
 Upstream documentation and reference launcher remain available in [CleanYourTV](https://github.com/Gathin23/cleanyourtv). See [source attribution](NOTICE.md) for provenance.
 
 Ultimate builds use `python scripts/build.py --edition ultimate --keystore <private-key> --alias <alias>`. Its APK is `dist/ultimate/CleanYourTV-HY320Pro-Ultimate.apk`; the optional companion is `CleanYourTV-Ultimate-Settings-Starter.apk`. These are separate from default-branch Basic/Advanced outputs.
+
+Branch: `ultimate-integrated-settings-adb-helper`. [Ultimate-only prerelease downloads](https://github.com/KeyErrorFinn/cleanyourtv-magcubic-hy320pro-launcher/releases/tag/v1.3.0-ultimate-adb-helper). These renamed artifacts still need a fresh physical run.
